@@ -12,9 +12,9 @@ export default function Home() {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background w-full">
         <Navbar onCategoryChange={setCategory} currentCategory={category} />
-        <main className="container p-4 md:p-8">
+        <main className="container mx-auto p-4 md:p-8">
           <div className="mx-auto max-w-7xl">
             {category === "stocks" && <StockDashboard />}
             {category === "forex" && <ForexDashboard />}

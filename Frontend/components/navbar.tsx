@@ -26,14 +26,7 @@ export function Navbar({ onCategoryChange, currentCategory }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 flex items-center md:hidden">
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            <span className="sr-only">Toggle menu</span>
-          </Button>
-        </div>
-
+      <div className="container mx-auto flex h-16 items-center justify-between gap-x-8">
         <div className="flex items-center">
           <Link href="/" className="flex items-center space-x-2">
             <svg
@@ -53,32 +46,23 @@ export function Navbar({ onCategoryChange, currentCategory }: NavbarProps) {
           </Link>
         </div>
 
-        <div
-          className={cn(
-            "absolute left-0 top-full w-full bg-background md:static md:w-auto",
-            isMenuOpen ? "block" : "hidden md:block",
-          )}
-        >
-          <div className="container flex flex-col items-start p-4 md:flex-row md:items-center md:p-0">
-            <div className="flex w-full items-center justify-between space-x-2 md:w-auto">
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant={currentCategory === category.id ? "default" : "ghost"}
-                  onClick={() => {
-                    onCategoryChange(category.id)
-                    setIsMenuOpen(false)
-                  }}
-                  className="justify-start"
-                >
-                  {category.label}
-                </Button>
-              ))}
-            </div>
-          </div>
+        <div className="flex items-center gap-x-4 mx-auto">
+          {categories.map((category) => (
+            <Button
+              key={category.id}
+              variant={currentCategory === category.id ? "default" : "ghost"}
+              onClick={() => {
+                onCategoryChange(category.id)
+                setIsMenuOpen(false)
+              }}
+              className="justify-start"
+            >
+              {category.label}
+            </Button>
+          ))}
         </div>
 
-        <div className="ml-auto flex items-center space-x-2">
+        <div className="flex items-center gap-x-2">
           <div className="hidden md:flex md:w-80">
             <div className="relative w-full">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
