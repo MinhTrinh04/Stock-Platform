@@ -6,6 +6,7 @@ import { TechnicalIndicators } from "@/components/technical-indicators"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { Watchlist } from "@/components/watchlist"
 
 // Mock forex data
 const forexData = {
@@ -191,6 +192,14 @@ const popularForex = [
   { symbol: "AUD/USD", name: "Australian Dollar / US Dollar", price: 0.6587, change: 0.0021, changePercent: 0.32 },
 ]
 
+const initialForexWatchlist = [
+  { id: "eurusd", symbol: "EUR/USD", name: "Euro / US Dollar", price: 1.0842, change: -0.0023, changePercent: -0.21 },
+  { id: "gbpusd", symbol: "GBP/USD", name: "British Pound / US Dollar", price: 1.2687, change: 0.0034, changePercent: 0.27 },
+  { id: "usdjpy", symbol: "USD/JPY", name: "US Dollar / Japanese Yen", price: 156.78, change: 0.45, changePercent: 0.29 },
+  { id: "usdchf", symbol: "USD/CHF", name: "US Dollar / Swiss Franc", price: 0.9042, change: -0.0018, changePercent: -0.2 },
+  { id: "audusd", symbol: "AUD/USD", name: "Australian Dollar / US Dollar", price: 0.6587, change: 0.0021, changePercent: 0.32 },
+]
+
 export function ForexDashboard() {
   const [timeframe, setTimeframe] = useState("1Y")
   const [showEMA, setShowEMA] = useState(true)
@@ -238,6 +247,7 @@ export function ForexDashboard() {
           )}
         </div>
         <div className="space-y-6">
+          <Watchlist initialItems={initialForexWatchlist} />
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Forex Information</CardTitle>
@@ -332,32 +342,6 @@ export function ForexDashboard() {
                     {showBollingerBands ? "Hide" : "Show"}
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Popular Forex Pairs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {popularForex.map((pair) => (
-                  <div key={pair.symbol} className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{pair.symbol}</div>
-                      <div className="text-sm text-muted-foreground">{pair.name}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">{pair.price.toFixed(4)}</div>
-                      <div className={`text-sm ${pair.changePercent >= 0 ? "text-green-600" : "text-red-600"}`}>
-                        {pair.changePercent >= 0 ? "+" : ""}
-                        {pair.change.toFixed(4)} ({pair.changePercent >= 0 ? "+" : ""}
-                        {pair.changePercent.toFixed(2)}%)
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </CardContent>
           </Card>

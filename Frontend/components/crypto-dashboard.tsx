@@ -6,6 +6,7 @@ import { TechnicalIndicators } from "@/components/technical-indicators"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { Watchlist } from "@/components/watchlist"
 
 // Mock crypto data
 const cryptoData = {
@@ -193,6 +194,14 @@ const popularCrypto = [
   { symbol: "XRP/USD", name: "Ripple / US Dollar", price: 0.56, change: 0.01, changePercent: 1.82 },
 ]
 
+const initialCryptoWatchlist = [
+  { id: "btcusd", symbol: "BTC/USD", name: "Bitcoin / US Dollar", price: 67842.15, change: 1245.32, changePercent: 1.87 },
+  { id: "ethusd", symbol: "ETH/USD", name: "Ethereum / US Dollar", price: 3456.78, change: 89.45, changePercent: 2.65 },
+  { id: "ltcusd", symbol: "LTC/USD", name: "Litecoin / US Dollar", price: 98.76, change: 2.34, changePercent: 2.43 },
+  { id: "bnbusd", symbol: "BNB/USD", name: "Binance Coin / US Dollar", price: 567.89, change: 12.56, changePercent: 2.27 },
+  { id: "xrpusd", symbol: "XRP/USD", name: "Ripple / US Dollar", price: 0.56, change: 0.01, changePercent: 1.82 },
+]
+
 export function CryptoDashboard() {
   const [timeframe, setTimeframe] = useState("1Y")
   const [showEMA, setShowEMA] = useState(true)
@@ -240,6 +249,7 @@ export function CryptoDashboard() {
           )}
         </div>
         <div className="space-y-6">
+          <Watchlist initialItems={initialCryptoWatchlist} />
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Crypto Information</CardTitle>
@@ -348,32 +358,6 @@ export function CryptoDashboard() {
                     {showBollingerBands ? "Hide" : "Show"}
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Popular Cryptocurrencies</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {popularCrypto.map((crypto) => (
-                  <div key={crypto.symbol} className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{crypto.symbol}</div>
-                      <div className="text-sm text-muted-foreground">{crypto.name}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">${crypto.price.toFixed(2)}</div>
-                      <div className={`text-sm ${crypto.changePercent >= 0 ? "text-green-600" : "text-red-600"}`}>
-                        {crypto.changePercent >= 0 ? "+" : ""}
-                        {crypto.change.toFixed(2)} ({crypto.changePercent >= 0 ? "+" : ""}
-                        {crypto.changePercent.toFixed(2)}%)
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
             </CardContent>
           </Card>
