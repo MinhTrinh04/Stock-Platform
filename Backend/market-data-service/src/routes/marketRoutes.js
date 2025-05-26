@@ -164,7 +164,19 @@ module.exports = (finnhubClient, redisClient, finnhubWebSocket) => {
     router.get('/trades/:symbol', async (req, res) => {
         try {
             const { symbol } = req.params;
-            const { startTime, endTime } = req.query;
+            let { startTime, endTime } = req.query;
+
+            // If no time range provided, use last 24 hours
+            if (!startTime || !endTime) {
+                endTime = Date.now();
+                startTime = endTime - (24 * 60 * 60 * 1000); // 24 hours ago
+            }
+
+            console.log('Querying trades with time range:', {
+                symbol,
+                startTime: new Date(parseInt(startTime)),
+                endTime: new Date(parseInt(endTime))
+            });
 
             const trades = await finnhubWebSocket.getHistoricalTrades(
                 symbol,
@@ -174,7 +186,40 @@ module.exports = (finnhubClient, redisClient, finnhubWebSocket) => {
 
             res.json(trades);
         } catch (error) {
+            console.error('Error in /trades endpoint:', error);
             res.status(500).json({ message: 'Error fetching trades', error: error.message });
+        }
+    });
+
+    // Debug endpoint to check Redis keys
+    router.get('/debug/redis-keys/:pattern', async (req, res) => {
+        try {
+            const { pattern } = req.params;
+            const keys = await redisClient.keys(pattern);
+            const result = {};
+
+            for (const key of keys) {
+                const type = await redisClient.type(key);
+                if (type === 'zset') {
+                    const members = await redisClient.zRange(key, 0, -1);
+                    result[key] = {
+                        type,
+                        count: members.length,
+                        members: members.slice(0, 5) // Show first 5 members
+                    };
+                } else {
+                    const value = await redisClient.get(key);
+                    result[key] = {
+                        type,
+                        value
+                    };
+                }
+            }
+
+            res.json(result);
+        } catch (error) {
+            console.error('Error checking Redis keys:', error);
+            res.status(500).json({ message: 'Error checking Redis keys', error: error.message });
         }
     });
 

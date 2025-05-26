@@ -13,6 +13,15 @@ const PORT = process.env.PORT || 3003;
 app.use(cors());
 app.use(express.json());
 
+// Redis connection check
+redisClient.on('connect', () => {
+    console.log('Connected to Redis');
+});
+
+redisClient.on('error', (err) => {
+    console.error('Redis connection error:', err);
+});
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -29,6 +38,19 @@ const finnhubClient = new finnhub.DefaultApi();
 // Initialize WebSocket
 const finnhubWebSocket = new FinnhubWebSocket(process.env.FINNHUB_API_KEY);
 finnhubWebSocket.connect();
+
+// Test Redis connection
+async function testRedisConnection() {
+    try {
+        await redisClient.set('test', 'Hello Redis');
+        const value = await redisClient.get('test');
+        console.log('Redis test value:', value);
+    } catch (error) {
+        console.error('Redis test failed:', error);
+    }
+}
+
+testRedisConnection();
 
 // Routes
 app.use('/api/market', require('./routes/marketRoutes')(finnhubClient, redisClient, finnhubWebSocket));
