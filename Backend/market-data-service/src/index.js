@@ -2,8 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const Redis = require('redis');
 const finnhub = require('finnhub');
+const FinnhubWebSocket = require('./websocket/finnhubWebSocket');
+const redisClient = require('./config/redis');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -11,14 +12,6 @@ const PORT = process.env.PORT || 3003;
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Redis client setup
-const redisClient = Redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-});
-
-redisClient.on('error', (err) => console.log('Redis Client Error', err));
-redisClient.connect();
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
@@ -29,12 +22,16 @@ mongoose.connect(process.env.MONGODB_URI, {
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Finnhub client setup
-const finnhubClient = new finnhub.DefaultApi({
-    apiKey: process.env.FINNHUB_API_KEY
-});
+const api_key = finnhub.ApiClient.instance.authentications['api_key'];
+api_key.apiKey = process.env.FINNHUB_API_KEY;
+const finnhubClient = new finnhub.DefaultApi();
+
+// Initialize WebSocket
+const finnhubWebSocket = new FinnhubWebSocket(process.env.FINNHUB_API_KEY);
+finnhubWebSocket.connect();
 
 // Routes
-app.use('/api/market', require('./routes/marketRoutes')(finnhubClient, redisClient));
+app.use('/api/market', require('./routes/marketRoutes')(finnhubClient, redisClient, finnhubWebSocket));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

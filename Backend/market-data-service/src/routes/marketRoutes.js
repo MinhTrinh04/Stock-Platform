@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-module.exports = (finnhubClient, redisClient) => {
+module.exports = (finnhubClient, redisClient, finnhubWebSocket) => {
     // Get stock quote
     router.get('/quote/:symbol', async (req, res) => {
         try {
@@ -107,6 +107,74 @@ module.exports = (finnhubClient, redisClient) => {
             });
         } catch (error) {
             res.status(500).json({ message: 'Error fetching news', error: error.message });
+        }
+    });
+
+    // Get technical indicators
+    router.get('/indicators/:symbol', async (req, res) => {
+        try {
+            const { symbol } = req.params;
+            const { resolution, from, to, indicator } = req.query;
+
+            // Check Redis cache first
+            const cacheKey = `indicators:${symbol}:${resolution}:${from}:${to}:${indicator}`;
+            const cachedIndicators = await redisClient.get(cacheKey);
+            if (cachedIndicators) {
+                return res.json(JSON.parse(cachedIndicators));
+            }
+
+            // Get fresh data from Finnhub
+            finnhubClient.technicalIndicator(symbol, resolution, from, to, indicator, {}, (error, data, response) => {
+                if (error) {
+                    return res.status(500).json({ message: 'Error fetching indicators', error: error.message });
+                }
+
+                // Cache the result for 5 minutes
+                redisClient.setEx(cacheKey, 300, JSON.stringify(data));
+                res.json(data);
+            });
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching indicators', error: error.message });
+        }
+    });
+
+    // Subscribe to real-time trades
+    router.post('/subscribe/:symbol', (req, res) => {
+        try {
+            const { symbol } = req.params;
+            finnhubWebSocket.subscribe(symbol);
+            res.json({ message: `Subscribed to ${symbol}` });
+        } catch (error) {
+            res.status(500).json({ message: 'Error subscribing to symbol', error: error.message });
+        }
+    });
+
+    // Unsubscribe from real-time trades
+    router.post('/unsubscribe/:symbol', (req, res) => {
+        try {
+            const { symbol } = req.params;
+            finnhubWebSocket.unsubscribe(symbol);
+            res.json({ message: `Unsubscribed from ${symbol}` });
+        } catch (error) {
+            res.status(500).json({ message: 'Error unsubscribing from symbol', error: error.message });
+        }
+    });
+
+    // Get historical trades
+    router.get('/trades/:symbol', async (req, res) => {
+        try {
+            const { symbol } = req.params;
+            const { startTime, endTime } = req.query;
+
+            const trades = await finnhubWebSocket.getHistoricalTrades(
+                symbol,
+                parseInt(startTime),
+                parseInt(endTime)
+            );
+
+            res.json(trades);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching trades', error: error.message });
         }
     });
 
