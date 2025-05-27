@@ -27,29 +27,31 @@ class FinnhubWebSocket {
         this.ws.on('message', async (data) => {
             try {
                 const message = JSON.parse(data);
-                console.log('Received WebSocket message type:', message.type);
+                console.log('Message from server:', message);
 
                 if (message.type === 'trade') {
+                    const trades = message.data;
                     const timestamp = Date.now();
-                    console.log('Trade data received:', {
-                        symbol: message.data[0].s,
-                        price: message.data[0].p,
-                        volume: message.data[0].v,
-                        timestamp: new Date(timestamp)
-                    });
 
-                    // Store trade data in Redis with timestamp
-                    const key = `trades:${message.data[0].s}:${timestamp}`;
-                    await redisClient.setEx(key, 86400, JSON.stringify(message.data)); // Store for 24 hours
-                    console.log('Stored trade data in Redis with key:', key);
+                    for (const trade of trades) {
+                        // Store trade data in Redis with timestamp
+                        const key = `trades:${trade.s}:${timestamp}`;
+                        await redisClient.setEx(key, 86400, JSON.stringify(trade)); // Store for 24 hours
 
-                    // Also store in a sorted set for time-based queries
-                    const sortedSetKey = `trades:${message.data[0].s}:sorted`;
-                    await redisClient.zAdd(sortedSetKey, {
-                        score: Number(timestamp), // Ensure score is a number
-                        value: JSON.stringify(message.data)
-                    });
-                    console.log('Added trade data to sorted set:', sortedSetKey);
+                        // Also store in a sorted set for time-based queries
+                        const sortedSetKey = `trades:${trade.s}:sorted`;
+                        await redisClient.zAdd(sortedSetKey, {
+                            score: Number(timestamp),
+                            value: JSON.stringify({
+                                symbol: trade.s,
+                                price: trade.p,
+                                volume: trade.v,
+                                timestamp: timestamp,
+                                conditions: trade.c || [],
+                                tradeId: trade.i || null
+                            })
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error processing WebSocket message:', error);
@@ -79,7 +81,11 @@ class FinnhubWebSocket {
 
     subscribe(symbol) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({ 'type': 'subscribe', 'symbol': symbol }));
+            const message = JSON.stringify({
+                'type': 'subscribe',
+                'symbol': symbol
+            });
+            this.ws.send(message);
             this.subscriptions.add(symbol);
             console.log(`Subscribed to ${symbol}`);
         }
@@ -87,7 +93,11 @@ class FinnhubWebSocket {
 
     unsubscribe(symbol) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({ 'type': 'unsubscribe', 'symbol': symbol }));
+            const message = JSON.stringify({
+                'type': 'unsubscribe',
+                'symbol': symbol
+            });
+            this.ws.send(message);
             this.subscriptions.delete(symbol);
             console.log(`Unsubscribed from ${symbol}`);
         }
@@ -106,15 +116,8 @@ class FinnhubWebSocket {
         }
 
         try {
-            // Use zRange instead of zRangeByScore with explicit min/max
-            const trades = await redisClient.zRange(key, 0, -1, {
-                REV: true,
-                BYSCORE: true,
-                LIMIT: {
-                    offset: 0,
-                    count: 100
-                }
-            });
+            // Use zRangeByScore with simpler syntax
+            const trades = await redisClient.zRangeByScore(key, min, max);
             console.log('Found trades:', trades.length);
             return trades.map(trade => JSON.parse(trade));
         } catch (error) {
