@@ -169,7 +169,7 @@ module.exports = (finnhubClient, redisClient, finnhubWebSocket) => {
             // If no time range provided, use last 24 hours
             if (!startTime || !endTime) {
                 endTime = Date.now();
-                startTime = endTime - (24 * 60 * 60 * 1000); // 24 hours ago
+                startTime = endTime - (72 * 60 * 60 * 1000); // 24 hours ago
             }
 
             console.log('Querying trades with time range:', {

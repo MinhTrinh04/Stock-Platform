@@ -118,7 +118,8 @@ class FinnhubWebSocket {
         try {
             // Use zRangeByScore with simpler syntax
             // const trades = await redisClient.zRangeByScore(key, min, max);
-            const trades = await redisClient.zRange(key, min, max, { BYSCORE: true });
+            // const trades = await redisClient.zRange(key, min, max, { BYSCORE: true });
+            const trades = await redisClient.zRange(key, String(min), String(max), { BY: 'SCORE' });
             console.log('Found trades:', trades.length);
             return trades.map(trade => JSON.parse(trade));
         } catch (error) {
