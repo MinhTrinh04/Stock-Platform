@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y \
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install vnstock in virtual environment
-RUN pip install vnstock
+# Install Python dependencies
+RUN pip install vnstock pandas
 
 WORKDIR /app
 

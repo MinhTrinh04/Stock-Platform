@@ -1,6 +1,8 @@
 const express = require('express');
 const { PythonShell } = require('python-shell');
 const path = require('path');
+const HistoricalDataService = require('../services/historicalDataService');
+const Instrument = require('../models/Instrument');
 
 const router = express.Router();
 
@@ -14,36 +16,26 @@ router.get('/ohlcv/:symbol', async (req, res) => {
             return res.status(400).json({ error: 'Start date and end date are required' });
         }
 
-        console.log(`Requesting OHLCV data for ${symbol} from ${start_date} to ${end_date} with interval ${interval}`);
+        // Validate interval
+        const validIntervals = ['1H', '1D', '1W', '1M', '1Y'];
+        if (!validIntervals.includes(interval)) {
+            return res.status(400).json({ error: 'Invalid interval. Must be one of: ' + validIntervals.join(', ') });
+        }
 
-        let options = {
-            mode: 'text',
-            pythonPath: 'python3',
-            pythonOptions: ['-u'],
-            scriptPath: path.join(__dirname, '..'),
-            args: ['ohlcv', symbol, start_date, end_date, interval]
-        };
+        // Check if instrument exists
+        const instrument = await Instrument.findOne({ symbol });
+        if (!instrument) {
+            return res.status(404).json({ error: 'Instrument not found' });
+        }
 
-        console.log('Python script options:', options);
+        const data = await HistoricalDataService.getHistoricalData(
+            symbol,
+            start_date,
+            end_date,
+            interval
+        );
 
-        PythonShell.run('stock_data.py', options).then(messages => {
-            console.log('Python script output:', messages);
-            try {
-                const data = JSON.parse(messages[0]);
-                if (data.error) {
-                    console.error('Python script error:', data.error);
-                    return res.status(500).json({ error: data.error });
-                }
-                res.json(data);
-            } catch (error) {
-                console.error('Failed to parse Python script output:', error);
-                console.error('Raw output:', messages);
-                res.status(500).json({ error: 'Failed to parse Python script output' });
-            }
-        }).catch(err => {
-            console.error('Failed to execute Python script:', err);
-            res.status(500).json({ error: 'Failed to execute Python script', details: err.message });
-        });
+        res.json(data);
     } catch (error) {
         console.error('Route handler error:', error);
         res.status(500).json({ error: error.message });
@@ -159,31 +151,8 @@ router.get('/indices', async (req, res) => {
 // Get all available symbols
 router.get('/symbols', async (req, res) => {
     try {
-        let options = {
-            mode: 'text',
-            pythonPath: 'python3',
-            pythonOptions: ['-u'],
-            scriptPath: path.join(__dirname, '..'),
-            args: ['symbols']
-        };
-
-        PythonShell.run('stock_data.py', options).then(messages => {
-            try {
-                const data = JSON.parse(messages[0]);
-                if (data.error) {
-                    console.error('Python script error:', data.error);
-                    return res.status(500).json({ error: data.error });
-                }
-                res.json(data);
-            } catch (error) {
-                console.error('Failed to parse Python script output:', error);
-                console.error('Raw output:', messages);
-                res.status(500).json({ error: 'Failed to parse Python script output' });
-            }
-        }).catch(err => {
-            console.error('Failed to execute Python script:', err);
-            res.status(500).json({ error: 'Failed to execute Python script', details: err.message });
-        });
+        const instruments = await Instrument.find({}, 'symbol name type description');
+        res.json(instruments);
     } catch (error) {
         console.error('Route handler error:', error);
         res.status(500).json({ error: error.message });
