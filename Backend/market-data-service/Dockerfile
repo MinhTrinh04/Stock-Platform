@@ -4,10 +4,15 @@ FROM node:18
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
+    python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
-# Install vnstock
-RUN pip3 install vnstock
+# Create and activate Python virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install vnstock in virtual environment
+RUN pip install vnstock
 
 WORKDIR /app
 

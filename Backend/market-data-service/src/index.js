@@ -3,8 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const redisClient = require('./config/redis');
-const { PythonShell } = require('python-shell');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -43,41 +41,8 @@ async function testRedisConnection() {
 
 testRedisConnection();
 
-// Get OHLCV data
-app.get('/api/ohlcv/:symbol', async (req, res) => {
-    try {
-        const { symbol } = req.params;
-        const { start_date, end_date } = req.query;
-
-        if (!start_date || !end_date) {
-            return res.status(400).json({ error: 'Start date and end date are required' });
-        }
-
-        let options = {
-            mode: 'text',
-            pythonPath: 'python3',
-            pythonOptions: ['-u'],
-            scriptPath: path.join(__dirname),
-            args: [symbol, start_date, end_date]
-        };
-
-        PythonShell.run('stock_data.py', options).then(messages => {
-            try {
-                const data = JSON.parse(messages[0]);
-                if (data.error) {
-                    return res.status(500).json({ error: data.error });
-                }
-                res.json(data);
-            } catch (error) {
-                res.status(500).json({ error: 'Failed to parse Python script output' });
-            }
-        }).catch(err => {
-            res.status(500).json({ error: 'Failed to execute Python script' });
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Routes
+app.use('/api/stock', require('./routes/stockRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
