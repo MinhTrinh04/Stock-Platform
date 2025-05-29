@@ -35,7 +35,6 @@ services:
       - "3003:3003"
     environment:
       - MONGODB_URI=${MONGODB_URI}
-      - FINNHUB_API_KEY=${FINNHUB_API_KEY}
       - REDIS_URL=redis://redis:6379
     depends_on:
       - redis

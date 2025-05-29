@@ -2,9 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const finnhub = require('finnhub');
-const FinnhubWebSocket = require('./websocket/finnhubWebSocket');
 const redisClient = require('./config/redis');
+const { PythonShell } = require('python-shell');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
@@ -30,15 +30,6 @@ mongoose.connect(process.env.MONGODB_URI, {
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('MongoDB connection error:', err));
 
-// Finnhub client setup
-const api_key = finnhub.ApiClient.instance.authentications['api_key'];
-api_key.apiKey = process.env.FINNHUB_API_KEY;
-const finnhubClient = new finnhub.DefaultApi();
-
-// Initialize WebSocket
-const finnhubWebSocket = new FinnhubWebSocket(process.env.FINNHUB_API_KEY);
-finnhubWebSocket.connect();
-
 // Test Redis connection
 async function testRedisConnection() {
     try {
@@ -52,8 +43,41 @@ async function testRedisConnection() {
 
 testRedisConnection();
 
-// Routes
-app.use('/api/market', require('./routes/marketRoutes')(finnhubClient, redisClient, finnhubWebSocket));
+// Get OHLCV data
+app.get('/api/ohlcv/:symbol', async (req, res) => {
+    try {
+        const { symbol } = req.params;
+        const { start_date, end_date } = req.query;
+
+        if (!start_date || !end_date) {
+            return res.status(400).json({ error: 'Start date and end date are required' });
+        }
+
+        let options = {
+            mode: 'text',
+            pythonPath: 'python3',
+            pythonOptions: ['-u'],
+            scriptPath: path.join(__dirname),
+            args: [symbol, start_date, end_date]
+        };
+
+        PythonShell.run('stock_data.py', options).then(messages => {
+            try {
+                const data = JSON.parse(messages[0]);
+                if (data.error) {
+                    return res.status(500).json({ error: data.error });
+                }
+                res.json(data);
+            } catch (error) {
+                res.status(500).json({ error: 'Failed to parse Python script output' });
+            }
+        }).catch(err => {
+            res.status(500).json({ error: 'Failed to execute Python script' });
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
