@@ -42,7 +42,7 @@ router.get('/ohlcv/:symbol', async (req, res) => {
     }
 });
 
-// Get company overview
+// Get company overview (Vẫn lấy data từ api not db)
 router.get('/company/:symbol', async (req, res) => {
     try {
         const { symbol } = req.params;
@@ -77,7 +77,7 @@ router.get('/company/:symbol', async (req, res) => {
     }
 });
 
-// Get financial statements
+// Get financial statements (ko cần lắm có thể xoá)
 router.get('/financial/:symbol', async (req, res) => {
     try {
         const { symbol } = req.params;
@@ -114,7 +114,7 @@ router.get('/financial/:symbol', async (req, res) => {
     }
 });
 
-// Get market indices
+// Get market indices (lỗi kbt fix chắc bỏ)
 router.get('/indices', async (req, res) => {
     try {
         let options = {
