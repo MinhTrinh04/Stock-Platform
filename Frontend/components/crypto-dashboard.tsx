@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { InteractiveChart } from "@/components/interactive-chart"
-import { TechnicalIndicators } from "@/components/technical-indicators"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Watchlist } from "@/components/watchlist"
+import { useState } from "react";
+import { InteractiveChart } from "@/components/interactive-chart";
+import { TechnicalIndicators } from "@/components/technical-indicators";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Watchlist } from "@/components/watchlist";
 
 // Mock crypto data
 const cryptoData = {
@@ -23,7 +23,7 @@ const cryptoData = {
   open: 66596.83,
   previousClose: 66596.83,
   allTimeHigh: 73750.0,
-}
+};
 
 // Mock historical data for chart with Bollinger Bands
 const historicalData = [
@@ -183,30 +183,95 @@ const historicalData = [
     bollingerMiddle: 67500,
     bollingerLower: 61100,
   },
-]
+];
 
 // Popular cryptocurrencies for watchlist
 const popularCrypto = [
-  { symbol: "BTC/USD", name: "Bitcoin / US Dollar", price: 67842.15, change: 1245.32, changePercent: 1.87 },
-  { symbol: "ETH/USD", name: "Ethereum / US Dollar", price: 3456.78, change: 89.45, changePercent: 2.65 },
-  { symbol: "LTC/USD", name: "Litecoin / US Dollar", price: 98.76, change: 2.34, changePercent: 2.43 },
-  { symbol: "BNB/USD", name: "Binance Coin / US Dollar", price: 567.89, change: 12.56, changePercent: 2.27 },
-  { symbol: "XRP/USD", name: "Ripple / US Dollar", price: 0.56, change: 0.01, changePercent: 1.82 },
-]
+  {
+    symbol: "BTC/USD",
+    name: "Bitcoin / US Dollar",
+    price: 67842.15,
+    change: 1245.32,
+    changePercent: 1.87,
+  },
+  {
+    symbol: "ETH/USD",
+    name: "Ethereum / US Dollar",
+    price: 3456.78,
+    change: 89.45,
+    changePercent: 2.65,
+  },
+  {
+    symbol: "LTC/USD",
+    name: "Litecoin / US Dollar",
+    price: 98.76,
+    change: 2.34,
+    changePercent: 2.43,
+  },
+  {
+    symbol: "BNB/USD",
+    name: "Binance Coin / US Dollar",
+    price: 567.89,
+    change: 12.56,
+    changePercent: 2.27,
+  },
+  {
+    symbol: "XRP/USD",
+    name: "Ripple / US Dollar",
+    price: 0.56,
+    change: 0.01,
+    changePercent: 1.82,
+  },
+];
 
 const initialCryptoWatchlist = [
-  { id: "btcusd", symbol: "BTC/USD", name: "Bitcoin / US Dollar", price: 67842.15, change: 1245.32, changePercent: 1.87 },
-  { id: "ethusd", symbol: "ETH/USD", name: "Ethereum / US Dollar", price: 3456.78, change: 89.45, changePercent: 2.65 },
-  { id: "ltcusd", symbol: "LTC/USD", name: "Litecoin / US Dollar", price: 98.76, change: 2.34, changePercent: 2.43 },
-  { id: "bnbusd", symbol: "BNB/USD", name: "Binance Coin / US Dollar", price: 567.89, change: 12.56, changePercent: 2.27 },
-  { id: "xrpusd", symbol: "XRP/USD", name: "Ripple / US Dollar", price: 0.56, change: 0.01, changePercent: 1.82 },
-]
+  {
+    id: "btcusd",
+    symbol: "BTC/USD",
+    name: "Bitcoin / US Dollar",
+    price: 67842.15,
+    change: 1245.32,
+    changePercent: 1.87,
+  },
+  {
+    id: "ethusd",
+    symbol: "ETH/USD",
+    name: "Ethereum / US Dollar",
+    price: 3456.78,
+    change: 89.45,
+    changePercent: 2.65,
+  },
+  {
+    id: "ltcusd",
+    symbol: "LTC/USD",
+    name: "Litecoin / US Dollar",
+    price: 98.76,
+    change: 2.34,
+    changePercent: 2.43,
+  },
+  {
+    id: "bnbusd",
+    symbol: "BNB/USD",
+    name: "Binance Coin / US Dollar",
+    price: 567.89,
+    change: 12.56,
+    changePercent: 2.27,
+  },
+  {
+    id: "xrpusd",
+    symbol: "XRP/USD",
+    name: "Ripple / US Dollar",
+    price: 0.56,
+    change: 0.01,
+    changePercent: 1.82,
+  },
+];
 
 export function CryptoDashboard() {
-  const [timeframe, setTimeframe] = useState("1Y")
-  const [showEMA, setShowEMA] = useState(true)
-  const [showRSI, setShowRSI] = useState(true)
-  const [showBollingerBands, setShowBollingerBands] = useState(true)
+  const [timeframe, setTimeframe] = useState("1Y");
+  const [showEMA, setShowEMA] = useState(true);
+  const [showRSI, setShowRSI] = useState(true);
+  const [showBollingerBands, setShowBollingerBands] = useState(true);
 
   return (
     <div className="space-y-6">
@@ -220,7 +285,11 @@ export function CryptoDashboard() {
             <CardContent className="p-4">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold">{cryptoData.symbol}</h2>
-                <Tabs defaultValue="1Y" className="w-[300px]" onValueChange={setTimeframe}>
+                <Tabs
+                  defaultValue="1Y"
+                  className="w-[300px]"
+                  onValueChange={setTimeframe}
+                >
                   <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="1D">1D</TabsTrigger>
                     <TabsTrigger value="1W">1W</TabsTrigger>
@@ -242,7 +311,9 @@ export function CryptoDashboard() {
           {showRSI && (
             <Card>
               <CardContent className="p-4">
-                <h3 className="mb-2 font-semibold">RSI (Relative Strength Index)</h3>
+                <h3 className="mb-2 font-semibold">
+                  RSI (Relative Strength Index)
+                </h3>
                 <TechnicalIndicators data={historicalData} type="rsi" />
               </CardContent>
             </Card>
@@ -266,67 +337,22 @@ export function CryptoDashboard() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price</span>
-                  <span className="font-medium">${cryptoData.price.toFixed(2)}</span>
+                  <span className="font-medium">
+                    ${cryptoData.price.toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Change</span>
-                  <span className={`font-medium ${cryptoData.change >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  <span
+                    className={`font-medium ${
+                      cryptoData.change >= 0 ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     {cryptoData.change >= 0 ? "+" : ""}
-                    {cryptoData.change.toFixed(2)} ({cryptoData.change >= 0 ? "+" : ""}
+                    {cryptoData.change.toFixed(2)} (
+                    {cryptoData.change >= 0 ? "+" : ""}
                     {cryptoData.changePercent.toFixed(2)}%)
                   </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Key Statistics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-sm text-muted-foreground">Market Cap</div>
-                  <div className="font-medium">${cryptoData.marketCap}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">24h Volume</div>
-                  <div className="font-medium">{cryptoData.volume24h}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Circulating Supply</div>
-                  <div className="font-medium">{cryptoData.circulatingSupply}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Day Range</div>
-                  <div className="font-medium">
-                    ${cryptoData.low.toFixed(2)} - ${cryptoData.high.toFixed(2)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Open</div>
-                  <div className="font-medium">${cryptoData.open.toFixed(2)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Previous Close</div>
-                  <div className="font-medium">${cryptoData.previousClose.toFixed(2)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">All Time High</div>
-                  <div className="font-medium">${cryptoData.allTimeHigh.toFixed(2)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">RSI (14)</div>
-                  <div className="font-medium">65</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">EMA (20)</div>
-                  <div className="font-medium">$59,500</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground">Bollinger Bands</div>
-                  <div className="font-medium">20, 2</div>
                 </div>
               </div>
             </CardContent>
@@ -338,13 +364,21 @@ export function CryptoDashboard() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span>EMA (Exponential Moving Average)</span>
-                  <Button variant={showEMA ? "default" : "outline"} size="sm" onClick={() => setShowEMA(!showEMA)}>
+                  <Button
+                    variant={showEMA ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowEMA(!showEMA)}
+                  >
                     {showEMA ? "Hide" : "Show"}
                   </Button>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>RSI (Relative Strength Index)</span>
-                  <Button variant={showRSI ? "default" : "outline"} size="sm" onClick={() => setShowRSI(!showRSI)}>
+                  <Button
+                    variant={showRSI ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowRSI(!showRSI)}
+                  >
                     {showRSI ? "Hide" : "Show"}
                   </Button>
                 </div>
@@ -364,5 +398,5 @@ export function CryptoDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
