@@ -42,34 +42,24 @@ router.get('/ohlcv/:symbol', async (req, res) => {
     }
 });
 
-// Get company overview (Vẫn lấy data từ api not db)
+// Get company information from database
 router.get('/company/:symbol', async (req, res) => {
     try {
         const { symbol } = req.params;
-        let options = {
-            mode: 'text',
-            pythonPath: 'python3',
-            pythonOptions: ['-u'],
-            scriptPath: path.join(__dirname, '..'),
-            args: ['company', symbol]
-        };
 
-        PythonShell.run('stock_data.py', options).then(messages => {
-            try {
-                const data = JSON.parse(messages[0]);
-                if (data.error) {
-                    console.error('Python script error:', data.error);
-                    return res.status(500).json({ error: data.error });
-                }
-                res.json(data);
-            } catch (error) {
-                console.error('Failed to parse Python script output:', error);
-                console.error('Raw output:', messages);
-                res.status(500).json({ error: 'Failed to parse Python script output' });
-            }
-        }).catch(err => {
-            console.error('Failed to execute Python script:', err);
-            res.status(500).json({ error: 'Failed to execute Python script', details: err.message });
+        // Find instrument in database
+        const instrument = await Instrument.findOne({ symbol });
+
+        if (!instrument) {
+            return res.status(404).json({ error: 'Company not found' });
+        }
+
+        // Return formatted company information
+        res.json({
+            symbol: instrument.symbol,
+            name: instrument.name,
+            type: instrument.type,
+            description: instrument.description || null
         });
     } catch (error) {
         console.error('Route handler error:', error);
