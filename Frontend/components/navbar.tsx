@@ -10,9 +10,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface NavbarProps {
   onCategoryChange: (category: string) => void;
@@ -22,12 +25,19 @@ interface NavbarProps {
 export function Navbar({ onCategoryChange, currentCategory }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
 
   const categories = [
     { id: "stocks", label: "Stocks" },
     { id: "forex", label: "Forex" },
     { id: "crypto", label: "Crypto" },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    router.push("/login");
+  };
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -99,10 +109,22 @@ export function Navbar({ onCategoryChange, currentCategory }: NavbarProps) {
             <span className="sr-only">Notifications</span>
           </Button>
 
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-            <span className="sr-only">Profile</span>
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+                <span className="sr-only">Profile</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => router.push("/profile")}>
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>
