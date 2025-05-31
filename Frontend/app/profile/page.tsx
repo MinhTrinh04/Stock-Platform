@@ -77,16 +77,7 @@ export default function ProfilePage() {
             <h3 className="font-semibold">Email</h3>
             <p>{userData.email}</p>
           </div>
-          <div>
-            <h3 className="font-semibold">Watchlist</h3>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {userData.watchlist?.map((symbol: string) => (
-                <span key={symbol} className="px-2 py-1 bg-gray-200 rounded">
-                  {symbol}
-                </span>
-              ))}
-            </div>
-          </div>
+
           <Button variant="destructive" onClick={handleLogout} className="mt-4">
             Logout
           </Button>
