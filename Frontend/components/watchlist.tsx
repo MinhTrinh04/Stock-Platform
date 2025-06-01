@@ -53,50 +53,30 @@ export function Watchlist({
     null
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [searchResults, setSearchResults] = useState<WatchlistItem[]>([]);
 
-  // Mock stock search results
-  const searchResults: WatchlistItem[] = [
-    {
-      id: "tsla",
-      symbol: "TSLA",
-      name: "Tesla, Inc.",
-      price: 245.68,
-      change: -3.42,
-      changePercent: -1.37,
-    },
-    {
-      id: "meta",
-      symbol: "META",
-      name: "Meta Platforms, Inc.",
-      price: 478.22,
-      change: 2.34,
-      changePercent: 0.49,
-    },
-    {
-      id: "nflx",
-      symbol: "NFLX",
-      name: "Netflix, Inc.",
-      price: 632.77,
-      change: 4.56,
-      changePercent: 0.73,
-    },
-    {
-      id: "dis",
-      symbol: "DIS",
-      name: "The Walt Disney Company",
-      price: 112.34,
-      change: -0.87,
-      changePercent: -0.77,
-    },
-    {
-      id: "ko",
-      symbol: "KO",
-      name: "The Coca-Cola Company",
-      price: 62.45,
-      change: 0.32,
-      changePercent: 0.52,
-    },
-  ];
+  // Fetch danh sách cổ phiếu từ backend khi component mount
+  useEffect(() => {
+    const fetchSymbols = async () => {
+      try {
+        const res = await fetch("http://localhost:3003/api/stock/symbols");
+        const data = await res.json();
+        // Map sang WatchlistItem (mock price, change, changePercent nếu chưa có)
+        const mapped = data.map((item: any) => ({
+          id: item.symbol.toLowerCase(),
+          symbol: item.symbol,
+          name: item.name,
+          price: Math.random() * 1000, // TODO: fetch giá thực tế nếu có
+          change: Math.random() * 10 - 5,
+          changePercent: Math.random() * 2 - 1,
+        }));
+        setSearchResults(mapped);
+      } catch (err) {
+        setSearchResults([]);
+      }
+    };
+    fetchSymbols();
+  }, []);
 
   // Filter items based on search query
   const filteredItems = items.filter(
@@ -279,47 +259,61 @@ export function Watchlist({
                 />
               </div>
               <div className="max-h-[300px] overflow-y-auto">
-                {searchResults
-                  .filter(
-                    (result) =>
-                      result.symbol
-                        .toLowerCase()
-                        .includes(newSymbol.toLowerCase()) ||
-                      result.name
-                        .toLowerCase()
-                        .includes(newSymbol.toLowerCase())
-                  )
-                  .map((result) => (
-                    <div
-                      key={result.id}
-                      className="flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-muted"
-                      onClick={() => handleAddStock(result)}
-                    >
-                      <div>
-                        <div className="font-medium">{result.symbol}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {result.name}
+                {searchResults.length === 0 ? (
+                  <div className="py-4 text-center text-sm text-muted-foreground">
+                    Không có cổ phiếu nào trong hệ thống.
+                  </div>
+                ) : (
+                  (() => {
+                    const filteredResults = searchResults.filter(
+                      (result) =>
+                        result.symbol
+                          .toLowerCase()
+                          .includes(newSymbol.toLowerCase()) ||
+                        result.name
+                          .toLowerCase()
+                          .includes(newSymbol.toLowerCase())
+                    );
+                    if (filteredResults.length === 0) {
+                      return (
+                        <div className="py-4 text-center text-sm text-muted-foreground">
+                          Không tìm thấy cổ phiếu phù hợp.
+                        </div>
+                      );
+                    }
+                    return filteredResults.map((result) => (
+                      <div
+                        key={result.id}
+                        className="flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-muted"
+                        onClick={() => handleAddStock(result)}
+                      >
+                        <div>
+                          <div className="font-medium">{result.symbol}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {result.name}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">
+                            ${result.price.toFixed(2)}
+                          </div>
+                          <div
+                            className={`text-sm ${
+                              result.changePercent >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {result.changePercent >= 0 ? "+" : ""}
+                            {result.change.toFixed(2)} (
+                            {result.changePercent >= 0 ? "+" : ""}
+                            {result.changePercent.toFixed(2)}%)
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-medium">
-                          ${result.price.toFixed(2)}
-                        </div>
-                        <div
-                          className={`text-sm ${
-                            result.changePercent >= 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }`}
-                        >
-                          {result.changePercent >= 0 ? "+" : ""}
-                          {result.change.toFixed(2)} (
-                          {result.changePercent >= 0 ? "+" : ""}
-                          {result.changePercent.toFixed(2)}%)
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ));
+                  })()
+                )}
               </div>
               <DialogFooter>
                 <Button
