@@ -1,6 +1,7 @@
+// components/navbar.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Import useEffect
 import Link from "next/link";
 import { Search, Menu, X, Moon, Sun, Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,14 @@ export function Navbar({ onCategoryChange, currentCategory }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { setTheme, theme } = useTheme();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false); // Add mounted state
+
+  // Categories and handleLogout remain the same
+
+  // useEffect to set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const categories = [
     { id: "stocks", label: "Stocks" },
@@ -83,8 +92,10 @@ export function Navbar({ onCategoryChange, currentCategory }: NavbarProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
-                {theme === "dark" ? (
+                {mounted && theme === "dark" ? (
                   <Sun className="h-5 w-5" />
+                ) : mounted && theme === "light" ? (
+                  <Moon className="h-5 w-5" />
                 ) : (
                   <Moon className="h-5 w-5" />
                 )}
