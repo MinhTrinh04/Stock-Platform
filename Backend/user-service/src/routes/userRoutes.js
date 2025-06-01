@@ -109,4 +109,29 @@ router.put('/watchlist', async (req, res) => {
     }
 });
 
+// Remove from watchlist
+router.delete('/watchlist', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const { symbol } = req.body;
+
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.watchlist = user.watchlist.filter(s => s !== symbol);
+        await user.save();
+
+        res.json(user.watchlist);
+    } catch (error) {
+        res.status(500).json({ message: 'Error removing from watchlist', error: error.message });
+    }
+});
+
 module.exports = router; 

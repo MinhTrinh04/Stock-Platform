@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { InteractiveChart } from "@/components/interactive-chart";
 import { StockInfo } from "@/components/stock-info";
@@ -13,6 +13,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface WatchlistItem {
+  id: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercent: number;
+  isFavorite?: boolean;
+}
 
 // Mock stock data
 const stockData = {
@@ -247,6 +257,60 @@ export function StockDashboard() {
   const [showRSI, setShowRSI] = useState(true);
   const [showBollingerBands, setShowBollingerBands] = useState(true);
   const [selectedStock, setSelectedStock] = useState("AAPL");
+  const [watchlistItems, setWatchlistItems] = useState<WatchlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWatchlist = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:3001/api/users/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch watchlist");
+        }
+
+        const userData = await response.json();
+
+        // Fetch stock data for each symbol in watchlist
+        const watchlistData = await Promise.all(
+          userData.watchlist.map(async (symbol: string) => {
+            // In a real app, you would fetch this from a stock API
+            // For now, we'll use mock data
+            return {
+              id: symbol.toLowerCase(),
+              symbol: symbol,
+              name: `${symbol} Company`, // This would come from the API
+              price: Math.random() * 1000,
+              change: Math.random() * 10 - 5,
+              changePercent: Math.random() * 2 - 1,
+              isFavorite: true,
+            };
+          })
+        );
+
+        setWatchlistItems(watchlistData);
+      } catch (error) {
+        console.error("Error fetching watchlist:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWatchlist();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -308,7 +372,7 @@ export function StockDashboard() {
         </div>
         <div className="space-y-6">
           <Watchlist
-            initialItems={initialWatchlistItems}
+            initialItems={watchlistItems}
             onSelectStock={handleSelectStock}
           />
 
