@@ -204,61 +204,72 @@ const historicalData = [
   },
 ];
 
-// Initial watchlist items
-const initialWatchlistItems = [
-  {
-    id: "aapl",
-    symbol: "AAPL",
-    name: "Apple Inc.",
-    price: 187.68,
-    change: 1.23,
-    changePercent: 0.66,
-    isFavorite: true,
-  },
-  {
-    id: "msft",
-    symbol: "MSFT",
-    name: "Microsoft Corp.",
-    price: 415.32,
-    change: 2.45,
-    changePercent: 0.59,
-  },
-  {
-    id: "googl",
-    symbol: "GOOGL",
-    name: "Alphabet Inc.",
-    price: 176.52,
-    change: -0.87,
-    changePercent: -0.49,
-  },
-  {
-    id: "amzn",
-    symbol: "AMZN",
-    name: "Amazon.com Inc.",
-    price: 178.23,
-    change: 1.56,
-    changePercent: 0.88,
-  },
-  {
-    id: "nvda",
-    symbol: "NVDA",
-    name: "NVIDIA Corp.",
-    price: 950.02,
-    change: 15.23,
-    changePercent: 1.63,
-    isFavorite: true,
-  },
-];
-
 export function StockDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [timeframe, setTimeframe] = useState("1Y");
+  const [timeframe, setTimeframe] = useState("1D");
   const [showEMA, setShowEMA] = useState(true);
   const [showRSI, setShowRSI] = useState(true);
   const [showBollingerBands, setShowBollingerBands] = useState(true);
   const [selectedStock, setSelectedStock] = useState("AAPL");
   const [watchlistItems, setWatchlistItems] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ohlcvData, setOhlcvData] = useState<any[]>([]);
+  const [isLoadingChart, setIsLoadingChart] = useState(false);
+
+  // Function to fetch OHLCV data
+  const fetchOhlcvData = async (symbol: string, interval: string) => {
+    try {
+      setIsLoadingChart(true);
+      const endDate = new Date().toISOString().split("T")[0];
+      let startDate = new Date();
+
+      // Calculate start date based on interval
+      switch (interval) {
+        case "1H":
+          startDate.setHours(startDate.getHours() - 24);
+          break;
+        case "1D":
+          startDate.setDate(startDate.getDate() - 30);
+          break;
+        case "1W":
+          startDate.setDate(startDate.getDate() - 90);
+          break;
+        case "1M":
+          startDate.setMonth(startDate.getMonth() - 6);
+          break;
+        case "6M":
+          startDate.setMonth(startDate.getMonth() - 12);
+          break;
+        case "1Y":
+          startDate.setFullYear(startDate.getFullYear() - 1);
+          break;
+      }
+
+      const response = await fetch(
+        `http://localhost:3003/api/stock/ohlcv/${symbol}?start_date=${
+          startDate.toISOString().split("T")[0]
+        }&end_date=${endDate}&interval=${interval}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch OHLCV data");
+      }
+
+      const data = await response.json();
+      setOhlcvData(data);
+    } catch (error) {
+      console.error("Error fetching OHLCV data:", error);
+    } finally {
+      setIsLoadingChart(false);
+    }
+  };
+
+  // Fetch data when selected stock or timeframe changes
+  useEffect(() => {
+    if (selectedStock) {
+      fetchOhlcvData(selectedStock, timeframe);
+    }
+  }, [selectedStock, timeframe]);
 
   useEffect(() => {
     const fetchWatchlist = async () => {
@@ -320,8 +331,8 @@ export function StockDashboard() {
 
   const handleSelectStock = (symbol: string) => {
     setSelectedStock(symbol);
-    // In a real app, this would fetch data for the selected stock
-    console.log(`Selected stock: ${symbol}`);
+    // Reset timeframe to 1D when selecting a new stock
+    setTimeframe("1D");
   };
 
   return (
@@ -335,27 +346,50 @@ export function StockDashboard() {
           <Card>
             <CardContent className="p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{stockData.symbol}</h2>
+                <h2 className="text-2xl font-bold">{selectedStock}</h2>
                 <Tabs
-                  defaultValue="1Y"
+                  defaultValue="1D"
                   className="w-[300px]"
                   onValueChange={setTimeframe}
                 >
-                  <TabsList className="grid w-full grid-cols-5">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="1H">1H</TabsTrigger>
                     <TabsTrigger value="1D">1D</TabsTrigger>
                     <TabsTrigger value="1W">1W</TabsTrigger>
                     <TabsTrigger value="1M">1M</TabsTrigger>
-                    <TabsTrigger value="6M">6M</TabsTrigger>
-                    <TabsTrigger value="1Y">1Y</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
-              <InteractiveChart
-                data={historicalData}
-                timeframe={timeframe}
-                showEMA={showEMA}
-                showBollingerBands={showBollingerBands}
-              />
+              {isLoadingChart ? (
+                <div className="flex h-[300px] items-center justify-center">
+                  <div className="text-muted-foreground">
+                    Loading chart data...
+                  </div>
+                </div>
+              ) : ohlcvData.length > 0 ? (
+                <InteractiveChart
+                  data={ohlcvData.map((item) => ({
+                    date: item.date,
+                    price: item.close,
+                    open: item.open,
+                    high: item.high,
+                    low: item.low,
+                    close: item.close,
+                    volume: item.volume,
+                    ema: item.ema || 0,
+                    bollingerUpper: item.bollingerUpper || 0,
+                    bollingerMiddle: item.bollingerMiddle || 0,
+                    bollingerLower: item.bollingerLower || 0,
+                  }))}
+                  timeframe={timeframe}
+                  showEMA={showEMA}
+                  showBollingerBands={showBollingerBands}
+                />
+              ) : (
+                <div className="flex h-[300px] items-center justify-center">
+                  <div className="text-muted-foreground">No data available</div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
