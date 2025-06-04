@@ -81,8 +81,8 @@ export function Watchlist({
   // Filter items based on search query
   const filteredItems = items.filter(
     (item) =>
-      item.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (item.symbol?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+      (item.name?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   // Sort items if sort is active
@@ -265,14 +265,10 @@ export function Watchlist({
                   </div>
                 ) : (
                   (() => {
-                    const filteredResults = searchResults.filter(
-                      (result) =>
-                        result.symbol
-                          .toLowerCase()
-                          .includes(newSymbol.toLowerCase()) ||
-                        result.name
-                          .toLowerCase()
-                          .includes(newSymbol.toLowerCase())
+                    const filteredResults = searchResults.filter((result) =>
+                      result.symbol
+                        .toLowerCase()
+                        .includes(newSymbol.toLowerCase())
                     );
                     if (filteredResults.length === 0) {
                       return (

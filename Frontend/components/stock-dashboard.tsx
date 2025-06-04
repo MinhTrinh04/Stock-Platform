@@ -233,7 +233,7 @@ export function StockDashboard() {
       // Calculate start date based on interval
       switch (interval) {
         case "1H":
-          startDate.setHours(startDate.getHours() - 24);
+          startDate.setHours(startDate.getHours() - 48);
           break;
         case "1D":
           startDate.setDate(startDate.getDate() - 30);
@@ -242,7 +242,7 @@ export function StockDashboard() {
           startDate.setDate(startDate.getDate() - 90);
           break;
         case "1M":
-          startDate.setMonth(startDate.getMonth() - 6);
+          startDate.setMonth(startDate.getMonth() - 12);
           break;
       }
 
