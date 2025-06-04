@@ -58,8 +58,6 @@ router.get('/company/:symbol', async (req, res) => {
         res.json({
             symbol: instrument.symbol,
             name: instrument.name,
-            type: instrument.type,
-            description: instrument.description || null
         });
     } catch (error) {
         console.error('Route handler error:', error);

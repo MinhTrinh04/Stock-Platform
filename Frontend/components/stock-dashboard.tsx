@@ -215,6 +215,8 @@ export function StockDashboard() {
   const [loading, setLoading] = useState(true);
   const [ohlcvData, setOhlcvData] = useState<any[]>([]);
   const [isLoadingChart, setIsLoadingChart] = useState(false);
+  const [companyInfo, setCompanyInfo] = useState<any>(null);
+  const [isLoadingCompany, setIsLoadingCompany] = useState(false);
 
   // Khi watchlistItems thay đổi, nếu chưa có selectedStock thì chọn mã đầu tiên
   useEffect(() => {
@@ -326,6 +328,20 @@ export function StockDashboard() {
     fetchWatchlist();
   }, []);
 
+  // Fetch company info when selectedStock changes
+  useEffect(() => {
+    if (!selectedStock) {
+      setCompanyInfo(null);
+      return;
+    }
+    setIsLoadingCompany(true);
+    fetch(`http://localhost:3003/api/stock/company/${selectedStock}`)
+      .then((res) => res.json())
+      .then((data) => setCompanyInfo(data))
+      .catch(() => setCompanyInfo(null))
+      .finally(() => setIsLoadingCompany(false));
+  }, [selectedStock]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, this would fetch data for the searched stock
@@ -334,7 +350,6 @@ export function StockDashboard() {
 
   const handleSelectStock = (symbol: string) => {
     setSelectedStock(symbol);
-    // Reset timeframe to 1D when selecting a new stock
     setTimeframe("1D");
   };
 
@@ -421,7 +436,15 @@ export function StockDashboard() {
             onSelectStock={handleSelectStock}
           />
 
-          <StockInfo stock={stockData} />
+          {isLoadingCompany ? (
+            <div className="p-4">Đang tải thông tin công ty...</div>
+          ) : companyInfo ? (
+            <StockInfo stock={companyInfo} />
+          ) : (
+            <div className="p-4 text-muted-foreground">
+              Chọn mã để xem thông tin công ty
+            </div>
+          )}
 
           <Card>
             <CardContent className="p-4">
