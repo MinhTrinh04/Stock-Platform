@@ -195,7 +195,7 @@ export function InteractiveChart({
     },
     yaxis: {
       labels: {
-        formatter: (value: number) => formatYAxis(value),
+        formatter: (value: number) => formatYAxis(value * 1000),
       },
     },
     tooltip: {
@@ -214,7 +214,9 @@ export function InteractiveChart({
   return (
     <div className="space-y-4">
       <div>
-        <div className="text-3xl font-bold">{formatYAxis(currentPrice)}</div>
+        <div className="text-3xl font-bold">
+          {formatYAxis(currentPrice * 1000)}
+        </div>
         <div
           className={`flex items-center ${
             isPositive ? "text-green-600" : "text-red-600"
@@ -228,9 +230,6 @@ export function InteractiveChart({
             ({isPositive ? "+" : ""}
             {priceChangePercent.toFixed(2)}%)
           </span>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          {timeframe} Chart • {data[0].date} - {data[data.length - 1].date}
         </div>
       </div>
 
