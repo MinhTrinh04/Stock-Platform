@@ -380,7 +380,7 @@ export function StockDashboard() {
               ) : ohlcvData.length > 0 ? (
                 <InteractiveChart
                   data={ohlcvData.map((item) => ({
-                    date: item.date,
+                    date: item.timestamp,
                     price: item.close,
                     open: item.open,
                     high: item.high,
