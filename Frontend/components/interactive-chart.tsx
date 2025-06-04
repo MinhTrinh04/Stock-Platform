@@ -361,12 +361,23 @@ export function InteractiveChart({
                     labelFormatter={(label) => `Date: ${label}`}
                     formatter={(value, name, props) => {
                       if (chartType === "candlestick" && name === "price") {
-                        const item = data[props.payload.index];
+                        const item = data?.[props?.payload?.index];
+                        if (!item) return ["No data"];
                         return [
-                          `Open: $${item.open?.toFixed(2)}`,
-                          `High: $${item.high?.toFixed(2)}`,
-                          `Low: $${item.low?.toFixed(2)}`,
-                          `Close: $${item.close?.toFixed(2)}`,
+                          `Open: $${
+                            item.open !== undefined ? item.open.toFixed(2) : "-"
+                          }`,
+                          `High: $${
+                            item.high !== undefined ? item.high.toFixed(2) : "-"
+                          }`,
+                          `Low: $${
+                            item.low !== undefined ? item.low.toFixed(2) : "-"
+                          }`,
+                          `Close: $${
+                            item.close !== undefined
+                              ? item.close.toFixed(2)
+                              : "-"
+                          }`,
                         ];
                       }
                       return [`$${Number(value).toFixed(2)}`];
