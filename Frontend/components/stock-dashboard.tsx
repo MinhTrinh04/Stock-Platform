@@ -210,11 +210,18 @@ export function StockDashboard() {
   const [showEMA, setShowEMA] = useState(true);
   const [showRSI, setShowRSI] = useState(true);
   const [showBollingerBands, setShowBollingerBands] = useState(true);
-  const [selectedStock, setSelectedStock] = useState("AAPL");
+  const [selectedStock, setSelectedStock] = useState<string>("");
   const [watchlistItems, setWatchlistItems] = useState<WatchlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [ohlcvData, setOhlcvData] = useState<any[]>([]);
   const [isLoadingChart, setIsLoadingChart] = useState(false);
+
+  // Khi watchlistItems thay đổi, nếu chưa có selectedStock thì chọn mã đầu tiên
+  useEffect(() => {
+    if (!selectedStock && watchlistItems.length > 0) {
+      setSelectedStock(watchlistItems[0].symbol);
+    }
+  }, [watchlistItems, selectedStock]);
 
   // Function to fetch OHLCV data
   const fetchOhlcvData = async (symbol: string, interval: string) => {
@@ -236,12 +243,6 @@ export function StockDashboard() {
           break;
         case "1M":
           startDate.setMonth(startDate.getMonth() - 6);
-          break;
-        case "6M":
-          startDate.setMonth(startDate.getMonth() - 12);
-          break;
-        case "1Y":
-          startDate.setFullYear(startDate.getFullYear() - 1);
           break;
       }
 
@@ -268,6 +269,8 @@ export function StockDashboard() {
   useEffect(() => {
     if (selectedStock) {
       fetchOhlcvData(selectedStock, timeframe);
+    } else {
+      setOhlcvData([]);
     }
   }, [selectedStock, timeframe]);
 
@@ -346,7 +349,9 @@ export function StockDashboard() {
           <Card>
             <CardContent className="p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{selectedStock}</h2>
+                <h2 className="text-2xl font-bold">
+                  {selectedStock || "Chọn mã cổ phiếu trước"}
+                </h2>
                 <Tabs
                   defaultValue="1D"
                   className="w-[300px]"
@@ -360,7 +365,13 @@ export function StockDashboard() {
                   </TabsList>
                 </Tabs>
               </div>
-              {isLoadingChart ? (
+              {selectedStock === "" ? (
+                <div className="flex h-[300px] items-center justify-center">
+                  <div className="text-muted-foreground">
+                    Chọn mã cổ phiếu trước
+                  </div>
+                </div>
+              ) : isLoadingChart ? (
                 <div className="flex h-[300px] items-center justify-center">
                   <div className="text-muted-foreground">
                     Loading chart data...
