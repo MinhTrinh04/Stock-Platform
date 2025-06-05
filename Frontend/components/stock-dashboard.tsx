@@ -217,6 +217,23 @@ export function StockDashboard() {
   const [isLoadingChart, setIsLoadingChart] = useState(false);
   const [companyInfo, setCompanyInfo] = useState<any>(null);
   const [isLoadingCompany, setIsLoadingCompany] = useState(false);
+  const [technicalData, setTechnicalData] = useState<{
+    rsi: (number | undefined)[];
+    ema: (number | undefined)[];
+    bollingerBands: {
+      upper: (number | undefined)[];
+      middle: (number | undefined)[];
+      lower: (number | undefined)[];
+    };
+  }>({
+    rsi: [],
+    ema: [],
+    bollingerBands: {
+      upper: [],
+      middle: [],
+      lower: [],
+    },
+  });
 
   // Khi watchlistItems thay đổi, nếu chưa có selectedStock thì chọn mã đầu tiên
   useEffect(() => {
@@ -225,10 +242,111 @@ export function StockDashboard() {
     }
   }, [watchlistItems, selectedStock]);
 
-  // Function to fetch OHLCV data
+  // Function to fetch technical indicators
+  const fetchTechnicalIndicators = async (prices: number[]) => {
+    if (!prices || prices.length === 0) {
+      console.log("No prices data available for technical indicators");
+      return;
+    }
+
+    try {
+      // Fetch RSI
+      const rsiResponse = await fetch("http://localhost:3002/api/rsi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          prices: prices,
+          period: 14,
+        }),
+      });
+
+      if (!rsiResponse.ok) {
+        throw new Error(`RSI API error: ${rsiResponse.statusText}`);
+      }
+      const rsiData = await rsiResponse.json();
+
+      // Fetch EMA
+      const emaResponse = await fetch("http://localhost:3002/api/ema", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          prices: prices,
+          period: 14,
+        }),
+      });
+
+      if (!emaResponse.ok) {
+        throw new Error(`EMA API error: ${emaResponse.statusText}`);
+      }
+      const emaData = await emaResponse.json();
+
+      // Fetch Bollinger Bands
+      const bbResponse = await fetch(
+        "http://localhost:3002/api/bollinger-bands",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            prices: prices,
+            period: 14,
+            stdDev: 2,
+          }),
+        }
+      );
+
+      if (!bbResponse.ok) {
+        throw new Error(`Bollinger Bands API error: ${bbResponse.statusText}`);
+      }
+      const bbData = await bbResponse.json();
+
+      setTechnicalData({
+        rsi: rsiData,
+        ema: emaData,
+        bollingerBands: {
+          upper: bbData.map((item: any) => item.upper),
+          middle: bbData.map((item: any) => item.middle),
+          lower: bbData.map((item: any) => item.lower),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching technical indicators:", error);
+      setTechnicalData({
+        rsi: [],
+        ema: [],
+        bollingerBands: {
+          upper: [],
+          middle: [],
+          lower: [],
+        },
+      });
+    }
+  };
+
+  // Update fetchOhlcvData to also fetch technical indicators
   const fetchOhlcvData = async (symbol: string, interval: string) => {
     try {
       setIsLoadingChart(true);
+      setOhlcvData([]); // Reset OHLCV data
+      setTechnicalData({
+        // Reset technical data
+        rsi: [],
+        ema: [],
+        bollingerBands: {
+          upper: [],
+          middle: [],
+          lower: [],
+        },
+      });
+
       const endDate = new Date().toISOString().split("T")[0];
       let startDate = new Date();
 
@@ -251,17 +369,49 @@ export function StockDashboard() {
       const response = await fetch(
         `http://localhost:3003/api/stock/ohlcv/${symbol}?start_date=${
           startDate.toISOString().split("T")[0]
-        }&end_date=${endDate}&interval=${interval}`
+        }&end_date=${endDate}&interval=${interval}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch OHLCV data");
+        throw new Error(`OHLCV API error: ${response.statusText}`);
       }
 
       const data = await response.json();
+
+      if (!data || data.length === 0) {
+        throw new Error("No OHLCV data received");
+      }
+
       setOhlcvData(data);
+
+      // Extract closing prices for technical indicators
+      const closingPrices = data.map((item: any) => item.close);
+
+      // Only fetch technical indicators if we have valid closing prices
+      if (closingPrices && closingPrices.length > 0) {
+        await fetchTechnicalIndicators(closingPrices);
+      } else {
+        console.log(
+          "No valid closing prices available for technical indicators"
+        );
+      }
     } catch (error) {
       console.error("Error fetching OHLCV data:", error);
+      setOhlcvData([]);
+      setTechnicalData({
+        rsi: [],
+        ema: [],
+        bollingerBands: {
+          upper: [],
+          middle: [],
+          lower: [],
+        },
+      });
     } finally {
       setIsLoadingChart(false);
     }
@@ -394,7 +544,7 @@ export function StockDashboard() {
                 </div>
               ) : ohlcvData.length > 0 ? (
                 <InteractiveChart
-                  data={ohlcvData.map((item) => ({
+                  data={ohlcvData.map((item, index) => ({
                     date: item.timestamp,
                     price: item.close,
                     open: item.open,
@@ -402,10 +552,13 @@ export function StockDashboard() {
                     low: item.low,
                     close: item.close,
                     volume: item.volume,
-                    ema: item.ema || 0,
-                    bollingerUpper: item.bollingerUpper || 0,
-                    bollingerMiddle: item.bollingerMiddle || 0,
-                    bollingerLower: item.bollingerLower || 0,
+                    ema: technicalData.ema[index] || 0,
+                    bollingerUpper:
+                      technicalData.bollingerBands.upper[index] || 0,
+                    bollingerMiddle:
+                      technicalData.bollingerBands.middle[index] || 0,
+                    bollingerLower:
+                      technicalData.bollingerBands.lower[index] || 0,
                   }))}
                   timeframe={timeframe}
                   showEMA={showEMA}
@@ -425,7 +578,14 @@ export function StockDashboard() {
                 <h3 className="mb-2 font-semibold">
                   RSI (Relative Strength Index)
                 </h3>
-                <TechnicalIndicators data={historicalData} type="rsi" />
+                <TechnicalIndicators
+                  data={ohlcvData.map((item, index) => ({
+                    date: item.timestamp,
+                    rsi: technicalData.rsi[index],
+                    ema: technicalData.ema[index],
+                  }))}
+                  type="rsi"
+                />
               </CardContent>
             </Card>
           )}

@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Redis = require('redis');
+const chartRoutes = require('./routes/chartRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -28,14 +29,22 @@ mongoose.connect(process.env.MONGODB_URI, {
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
-app.use('/api/charts', require('./routes/chartRoutes'));
+app.use('/api', chartRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
+    res.status(500).json({
+        message: 'Internal Server Error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
+// Handle 404
+app.use((req, res) => {
+    res.status(404).json({ message: 'Not Found' });
 });
 
 app.listen(PORT, () => {
-    console.log(`Chart service running on port ${PORT}`);
+    console.log(`Chart service is running on port ${PORT}`);
 }); 
