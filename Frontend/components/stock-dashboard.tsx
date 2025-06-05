@@ -243,13 +243,46 @@ export function StockDashboard() {
   }, [watchlistItems, selectedStock]);
 
   // Function to fetch technical indicators
-  const fetchTechnicalIndicators = async (prices: number[]) => {
+  const fetchTechnicalIndicators = async (
+    prices: number[],
+    interval: string
+  ) => {
     if (!prices || prices.length === 0) {
       console.log("No prices data available for technical indicators");
       return;
     }
 
     try {
+      // Calculate period based on interval and data length
+      let period = 14; // Default period
+      const dataLength = prices.length;
+
+      switch (interval) {
+        case "1H":
+          // For hourly data, use 48 periods (2 days) or 20% of data length
+          period = Math.min(48, Math.floor(dataLength * 0.2));
+          break;
+        case "1D":
+          // For daily data, use 30 periods (1 month) or 20% of data length
+          period = Math.min(30, Math.floor(dataLength * 0.2));
+          break;
+        case "1W":
+          // For weekly data, use 90 periods (3 months) or 20% of data length
+          period = Math.min(90, Math.floor(dataLength * 0.2));
+          break;
+        case "1M":
+          // For monthly data, use 12 periods (1 year) or 20% of data length
+          period = Math.min(12, Math.floor(dataLength * 0.2));
+          break;
+      }
+
+      // Ensure period is at least 2 for valid calculations
+      period = Math.max(2, period);
+
+      console.log(
+        `Calculating indicators with period: ${period} for ${interval} timeframe (data length: ${dataLength})`
+      );
+
       // Fetch RSI
       const rsiResponse = await fetch("http://localhost:3002/api/rsi", {
         method: "POST",
@@ -259,7 +292,7 @@ export function StockDashboard() {
         },
         body: JSON.stringify({
           prices: prices,
-          period: 14,
+          period: period,
         }),
       });
 
@@ -277,7 +310,7 @@ export function StockDashboard() {
         },
         body: JSON.stringify({
           prices: prices,
-          period: 14,
+          period: period,
         }),
       });
 
@@ -297,7 +330,7 @@ export function StockDashboard() {
           },
           body: JSON.stringify({
             prices: prices,
-            period: 14,
+            period: period,
             stdDev: 2,
           }),
         }
@@ -366,10 +399,11 @@ export function StockDashboard() {
           break;
       }
 
+      const formattedStartDate = startDate.toISOString().split("T")[0];
+
+      // Fetch OHLCV data from port 3003
       const response = await fetch(
-        `http://localhost:3003/api/stock/ohlcv/${symbol}?start_date=${
-          startDate.toISOString().split("T")[0]
-        }&end_date=${endDate}&interval=${interval}`,
+        `http://localhost:3003/api/stock/ohlcv/${symbol}?start_date=${formattedStartDate}&end_date=${endDate}&interval=${interval}`,
         {
           headers: {
             Accept: "application/json",
@@ -390,11 +424,13 @@ export function StockDashboard() {
       setOhlcvData(data);
 
       // Extract closing prices for technical indicators
-      const closingPrices = data.map((item: any) => item.close);
+      const closingPrices = data
+        .map((item: any) => Number(item.close))
+        .filter((price: number) => !isNaN(price));
 
       // Only fetch technical indicators if we have valid closing prices
       if (closingPrices && closingPrices.length > 0) {
-        await fetchTechnicalIndicators(closingPrices);
+        await fetchTechnicalIndicators(closingPrices, interval);
       } else {
         console.log(
           "No valid closing prices available for technical indicators"
