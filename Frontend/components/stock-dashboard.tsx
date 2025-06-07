@@ -446,7 +446,7 @@ export function StockDashboard() {
 
           {showRSI && (
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 pb-80">
                 <h3 className="mb-2 font-semibold">
                   RSI (Relative Strength Index)
                 </h3>

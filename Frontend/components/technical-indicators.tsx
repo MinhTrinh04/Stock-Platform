@@ -94,11 +94,6 @@ export function TechnicalIndicators({ data, type }: TechnicalIndicatorsProps) {
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
-        <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-          <span>Oversold (&lt;30)</span>
-          <span>Neutral</span>
-          <span>Overbought (&gt;70)</span>
-        </div>
       </div>
     );
   }
