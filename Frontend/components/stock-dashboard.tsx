@@ -24,186 +24,6 @@ interface WatchlistItem {
   isFavorite?: boolean;
 }
 
-// Mock stock data
-const stockData = {
-  symbol: "AAPL",
-  name: "Apple Inc.",
-  price: 187.68,
-  change: 1.23,
-  changePercent: 0.66,
-  marketCap: "2.94T",
-  peRatio: 31.2,
-  dividend: 0.92,
-  volume: "48.2M",
-  avgVolume: "52.8M",
-  high: 188.45,
-  low: 186.21,
-  open: 186.73,
-  previousClose: 186.45,
-  yearHigh: 199.62,
-  yearLow: 143.9,
-};
-
-// Mock historical data for chart with Bollinger Bands
-const historicalData = [
-  {
-    date: "Jan",
-    price: 173.41,
-    open: 169.2,
-    high: 175.5,
-    low: 168.3,
-    close: 173.41,
-    ema: 171.5,
-    rsi: 58,
-    bollingerUpper: 178.5,
-    bollingerMiddle: 172.3,
-    bollingerLower: 166.1,
-  },
-  {
-    date: "Feb",
-    price: 165.12,
-    open: 172.8,
-    high: 173.2,
-    low: 164.5,
-    close: 165.12,
-    ema: 169.8,
-    rsi: 42,
-    bollingerUpper: 172.4,
-    bollingerMiddle: 166.5,
-    bollingerLower: 160.6,
-  },
-  {
-    date: "Mar",
-    price: 169.85,
-    open: 165.3,
-    high: 171.4,
-    low: 164.9,
-    close: 169.85,
-    ema: 169.2,
-    rsi: 51,
-    bollingerUpper: 175.2,
-    bollingerMiddle: 168.7,
-    bollingerLower: 162.2,
-  },
-  {
-    date: "Apr",
-    price: 173.57,
-    open: 170.1,
-    high: 174.8,
-    low: 169.5,
-    close: 173.57,
-    ema: 170.1,
-    rsi: 62,
-    bollingerUpper: 179.8,
-    bollingerMiddle: 172.5,
-    bollingerLower: 165.2,
-  },
-  {
-    date: "May",
-    price: 180.95,
-    open: 174.2,
-    high: 182.3,
-    low: 173.8,
-    close: 180.95,
-    ema: 172.8,
-    rsi: 71,
-    bollingerUpper: 187.3,
-    bollingerMiddle: 179.8,
-    bollingerLower: 172.3,
-  },
-  {
-    date: "Jun",
-    price: 193.97,
-    open: 181.5,
-    high: 194.5,
-    low: 180.9,
-    close: 193.97,
-    ema: 177.5,
-    rsi: 82,
-    bollingerUpper: 201.5,
-    bollingerMiddle: 192.4,
-    bollingerLower: 183.3,
-  },
-  {
-    date: "Jul",
-    price: 196.45,
-    open: 194.2,
-    high: 198.7,
-    low: 192.8,
-    close: 196.45,
-    ema: 182.4,
-    rsi: 76,
-    bollingerUpper: 204.2,
-    bollingerMiddle: 195.8,
-    bollingerLower: 187.4,
-  },
-  {
-    date: "Aug",
-    price: 187.87,
-    open: 195.8,
-    high: 196.3,
-    low: 186.5,
-    close: 187.87,
-    ema: 183.9,
-    rsi: 61,
-    bollingerUpper: 196.5,
-    bollingerMiddle: 188.2,
-    bollingerLower: 179.9,
-  },
-  {
-    date: "Sep",
-    price: 174.79,
-    open: 187.2,
-    high: 188.1,
-    low: 173.5,
-    close: 174.79,
-    ema: 181.5,
-    rsi: 38,
-    bollingerUpper: 184.3,
-    bollingerMiddle: 175.6,
-    bollingerLower: 166.9,
-  },
-  {
-    date: "Oct",
-    price: 170.77,
-    open: 174.3,
-    high: 175.8,
-    low: 169.2,
-    close: 170.77,
-    ema: 178.9,
-    rsi: 32,
-    bollingerUpper: 179.5,
-    bollingerMiddle: 171.2,
-    bollingerLower: 162.9,
-  },
-  {
-    date: "Nov",
-    price: 189.37,
-    open: 171.5,
-    high: 190.2,
-    low: 170.9,
-    close: 189.37,
-    ema: 181.2,
-    rsi: 65,
-    bollingerUpper: 198.4,
-    bollingerMiddle: 188.5,
-    bollingerLower: 178.6,
-  },
-  {
-    date: "Dec",
-    price: 187.68,
-    open: 189.5,
-    high: 191.2,
-    low: 186.3,
-    close: 187.68,
-    ema: 182.8,
-    rsi: 58,
-    bollingerUpper: 196.9,
-    bollingerMiddle: 187.2,
-    bollingerLower: 177.5,
-  },
-];
-
 export function StockDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [timeframe, setTimeframe] = useState("1D");
@@ -421,7 +241,7 @@ export function StockDashboard() {
       if (!data || data.length === 0) {
         throw new Error("No OHLCV data received");
       }
-
+      console.log("Data:", data);
       setOhlcvData(data);
 
       // Extract closing prices for technical indicators
@@ -430,9 +250,9 @@ export function StockDashboard() {
         .filter((price: number) => !isNaN(price));
 
       console.log("Closing Prices:", closingPrices);
-      console.log("Number of closing prices:", closingPrices.length);
-      console.log("First 5 prices:", closingPrices.slice(0, 5));
-      console.log("Last 5 prices:", closingPrices.slice(-5));
+      // console.log("Number of closing prices:", closingPrices.length);
+      // console.log("First 5 prices:", closingPrices.slice(0, 5));
+      // console.log("Last 5 prices:", closingPrices.slice(-5));
 
       // Only fetch technical indicators if we have valid closing prices
       if (closingPrices && closingPrices.length > 0) {
