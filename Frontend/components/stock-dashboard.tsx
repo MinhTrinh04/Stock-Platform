@@ -275,6 +275,7 @@ export function StockDashboard() {
           period = Math.min(12, Math.floor(dataLength * 0.2));
           break;
       }
+      console.log("Period:", period);
 
       // Ensure period is at least 2 for valid calculations
       period = Math.max(2, period);
@@ -427,6 +428,11 @@ export function StockDashboard() {
       const closingPrices = data
         .map((item: any) => Number(item.close))
         .filter((price: number) => !isNaN(price));
+
+      console.log("Closing Prices:", closingPrices);
+      console.log("Number of closing prices:", closingPrices.length);
+      console.log("First 5 prices:", closingPrices.slice(0, 5));
+      console.log("Last 5 prices:", closingPrices.slice(-5));
 
       // Only fetch technical indicators if we have valid closing prices
       if (closingPrices && closingPrices.length > 0) {
@@ -588,13 +594,10 @@ export function StockDashboard() {
                     low: item.low,
                     close: item.close,
                     volume: item.volume,
-                    ema: technicalData.ema[index] || 0,
-                    bollingerUpper:
-                      technicalData.bollingerBands.upper[index] || 0,
-                    bollingerMiddle:
-                      technicalData.bollingerBands.middle[index] || 0,
-                    bollingerLower:
-                      technicalData.bollingerBands.lower[index] || 0,
+                    ema: technicalData.ema[index],
+                    bollingerUpper: technicalData.bollingerBands.upper[index],
+                    bollingerMiddle: technicalData.bollingerBands.middle[index],
+                    bollingerLower: technicalData.bollingerBands.lower[index],
                   }))}
                   timeframe={timeframe}
                   showEMA={showEMA}

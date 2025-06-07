@@ -28,10 +28,10 @@ interface InteractiveChartProps {
     close?: number;
     high?: number;
     low?: number;
-    ema: number;
-    bollingerUpper: number;
-    bollingerMiddle: number;
-    bollingerLower: number;
+    ema?: number;
+    bollingerUpper?: number;
+    bollingerMiddle?: number;
+    bollingerLower?: number;
   }[];
   timeframe: string;
   showEMA?: boolean;
@@ -118,10 +118,12 @@ export function InteractiveChart({
           {
             name: "EMA",
             type: "line",
-            data: data.map((item) => ({
-              x: new Date(item.date).getTime(),
-              y: item.ema,
-            })),
+            data: data
+              .filter((item) => item.ema !== undefined)
+              .map((item) => ({
+                x: new Date(item.date).getTime(),
+                y: item.ema,
+              })),
           },
         ]
       : []),
@@ -130,26 +132,32 @@ export function InteractiveChart({
           {
             name: "Upper Band",
             type: "line",
-            data: data.map((item) => ({
-              x: new Date(item.date).getTime(),
-              y: item.bollingerUpper,
-            })),
+            data: data
+              .filter((item) => item.bollingerUpper !== undefined)
+              .map((item) => ({
+                x: new Date(item.date).getTime(),
+                y: item.bollingerUpper,
+              })),
           },
           {
             name: "Middle Band",
             type: "line",
-            data: data.map((item) => ({
-              x: new Date(item.date).getTime(),
-              y: item.bollingerMiddle,
-            })),
+            data: data
+              .filter((item) => item.bollingerMiddle !== undefined)
+              .map((item) => ({
+                x: new Date(item.date).getTime(),
+                y: item.bollingerMiddle,
+              })),
           },
           {
             name: "Lower Band",
             type: "line",
-            data: data.map((item) => ({
-              x: new Date(item.date).getTime(),
-              y: item.bollingerLower,
-            })),
+            data: data
+              .filter((item) => item.bollingerLower !== undefined)
+              .map((item) => ({
+                x: new Date(item.date).getTime(),
+                y: item.bollingerLower,
+              })),
           },
         ]
       : []),
