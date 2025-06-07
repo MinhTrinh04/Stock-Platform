@@ -118,12 +118,10 @@ export function InteractiveChart({
           {
             name: "EMA",
             type: "line",
-            data: data
-              .filter((item) => item.ema !== undefined)
-              .map((item) => ({
-                x: new Date(item.date).getTime(),
-                y: item.ema,
-              })),
+            data: data.map((item) => ({
+              x: new Date(item.date).getTime(),
+              y: item.ema !== undefined ? item.ema : null,
+            })),
           },
         ]
       : []),
@@ -132,32 +130,29 @@ export function InteractiveChart({
           {
             name: "Upper Band",
             type: "line",
-            data: data
-              .filter((item) => item.bollingerUpper !== undefined)
-              .map((item) => ({
-                x: new Date(item.date).getTime(),
-                y: item.bollingerUpper,
-              })),
+            data: data.map((item) => ({
+              x: new Date(item.date).getTime(),
+              y: item.bollingerUpper !== undefined ? item.bollingerUpper : null,
+            })),
           },
           {
             name: "Middle Band",
             type: "line",
-            data: data
-              .filter((item) => item.bollingerMiddle !== undefined)
-              .map((item) => ({
-                x: new Date(item.date).getTime(),
-                y: item.bollingerMiddle,
-              })),
+            data: data.map((item) => ({
+              x: new Date(item.date).getTime(),
+              y:
+                item.bollingerMiddle !== undefined
+                  ? item.bollingerMiddle
+                  : null,
+            })),
           },
           {
             name: "Lower Band",
             type: "line",
-            data: data
-              .filter((item) => item.bollingerLower !== undefined)
-              .map((item) => ({
-                x: new Date(item.date).getTime(),
-                y: item.bollingerLower,
-              })),
+            data: data.map((item) => ({
+              x: new Date(item.date).getTime(),
+              y: item.bollingerLower !== undefined ? item.bollingerLower : null,
+            })),
           },
         ]
       : []),

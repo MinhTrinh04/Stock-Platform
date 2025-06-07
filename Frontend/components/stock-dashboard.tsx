@@ -62,6 +62,13 @@ export function StockDashboard() {
     }
   }, [watchlistItems, selectedStock]);
 
+  // Thêm lại helper function này vào đầu file hoặc trước fetchTechnicalIndicators
+  const padArray = (arr: any[], targetLength: number) => {
+    const padLength = targetLength - arr.length;
+    if (padLength <= 0) return arr;
+    return Array(padLength).fill(null).concat(arr);
+  };
+
   // Function to fetch technical indicators
   const fetchTechnicalIndicators = async (
     prices: number[],
@@ -163,12 +170,21 @@ export function StockDashboard() {
       const bbData = await bbResponse.json();
 
       setTechnicalData({
-        rsi: rsiData,
-        ema: emaData,
+        rsi: padArray(rsiData, prices.length),
+        ema: padArray(emaData, prices.length),
         bollingerBands: {
-          upper: bbData.map((item: any) => item.upper),
-          middle: bbData.map((item: any) => item.middle),
-          lower: bbData.map((item: any) => item.lower),
+          upper: padArray(
+            bbData.map((item: any) => item.upper),
+            prices.length
+          ),
+          middle: padArray(
+            bbData.map((item: any) => item.middle),
+            prices.length
+          ),
+          lower: padArray(
+            bbData.map((item: any) => item.lower),
+            prices.length
+          ),
         },
       });
     } catch (error) {
