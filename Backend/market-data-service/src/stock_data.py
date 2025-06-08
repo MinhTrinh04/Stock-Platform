@@ -47,7 +47,7 @@ def get_ohlcv(symbol, start_date, end_date, interval='1D', market_type='stock'):
                 'high': float(row['high']),
                 'low': float(row['low']),
                 'close': float(row['close']),
-                'volume': float(row['volume'])
+                'volume': float(row.get('volume', 0))
             })
         
         print(json.dumps(formatted_data))
