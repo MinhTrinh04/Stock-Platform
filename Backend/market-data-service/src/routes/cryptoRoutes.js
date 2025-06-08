@@ -32,7 +32,8 @@ router.get('/ohlcv/:symbol', async (req, res) => {
             symbol,
             start_date,
             end_date,
-            interval
+            interval,
+            'crypto'
         );
 
         res.json(data);

@@ -17,13 +17,13 @@ router.get('/ohlcv/:symbol', async (req, res) => {
         }
 
         // Validate interval
-        const validIntervals = ['1H', '1D', '1W', '1M', '1Y'];
+        const validIntervals = ['1H', '1D', '1W', '1M'];
         if (!validIntervals.includes(interval)) {
             return res.status(400).json({ error: 'Invalid interval. Must be one of: ' + validIntervals.join(', ') });
         }
 
         // Check if instrument exists
-        const instrument = await Instrument.findOne({ symbol });
+        const instrument = await Instrument.findOne({ symbol, type: 'stock' });
         if (!instrument) {
             return res.status(404).json({ error: 'Instrument not found' });
         }
@@ -32,7 +32,8 @@ router.get('/ohlcv/:symbol', async (req, res) => {
             symbol,
             start_date,
             end_date,
-            interval
+            interval,
+            'stock'
         );
 
         res.json(data);
@@ -48,7 +49,7 @@ router.get('/company/:symbol', async (req, res) => {
         const { symbol } = req.params;
 
         // Find instrument in database
-        const instrument = await Instrument.findOne({ symbol });
+        const instrument = await Instrument.findOne({ symbol, type: 'stock' });
 
         if (!instrument) {
             return res.status(404).json({ error: 'Company not found' });
@@ -58,6 +59,8 @@ router.get('/company/:symbol', async (req, res) => {
         res.json({
             symbol: instrument.symbol,
             name: instrument.name,
+            type: instrument.type,
+            description: instrument.description
         });
     } catch (error) {
         console.error('Route handler error:', error);
@@ -65,11 +68,10 @@ router.get('/company/:symbol', async (req, res) => {
     }
 });
 
-
 // Get all available symbols
 router.get('/symbols', async (req, res) => {
     try {
-        const instruments = await Instrument.find({}, 'symbol name type description');
+        const instruments = await Instrument.find({ type: 'stock' }, 'symbol name type description');
         res.json(instruments);
     } catch (error) {
         console.error('Route handler error:', error);

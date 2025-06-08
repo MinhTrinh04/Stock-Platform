@@ -4,7 +4,7 @@ const HistoricalData = require('../models/HistoricalData');
 const CacheService = require('./cacheService');
 
 class HistoricalDataService {
-    static async getHistoricalData(symbol, startDate, endDate, interval) {
+    static async getHistoricalData(symbol, startDate, endDate, interval, marketType = 'stock') {
         try {
             // Generate cache key
             const cacheKey = CacheService.generateCacheKey(symbol, interval, startDate, endDate);
@@ -34,11 +34,11 @@ class HistoricalDataService {
                 return mongoData;
             }
 
-            // If we don't have all data, fetch from vnstock
-            const vnstockData = await this.fetchFromVnstock(symbol, startDate, endDate, interval);
+            // If we don't have all data, fetch from external source
+            const externalData = await this.fetchFromExternalSource(symbol, startDate, endDate, interval, marketType);
 
             // Save to MongoDB
-            await this.saveToMongoDB(vnstockData, symbol, interval);
+            await this.saveToMongoDB(externalData, symbol, interval);
 
             // Cache the complete dataset
             const completeData = await HistoricalData.find({
@@ -59,14 +59,14 @@ class HistoricalDataService {
         }
     }
 
-    static async fetchFromVnstock(symbol, startDate, endDate, interval) {
+    static async fetchFromExternalSource(symbol, startDate, endDate, interval, marketType) {
         return new Promise((resolve, reject) => {
             const options = {
                 mode: 'text',
                 pythonPath: 'python3',
                 pythonOptions: ['-u'],
                 scriptPath: path.join(__dirname, '..'),
-                args: ['ohlcv', symbol, startDate, endDate, interval]
+                args: ['ohlcv', symbol, startDate, endDate, interval, marketType]
             };
 
             PythonShell.run('stock_data.py', options)
