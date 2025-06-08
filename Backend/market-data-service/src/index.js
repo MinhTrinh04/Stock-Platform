@@ -43,8 +43,6 @@ testRedisConnection();
 
 // Routes
 app.use('/api/stock', require('./routes/stockRoutes'));
-app.use('/api/crypto', require('./routes/cryptoRoutes'));
-app.use('/api/forex', require('./routes/forexRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
