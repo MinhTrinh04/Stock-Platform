@@ -23,25 +23,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-interface WatchlistItem {
-  id: string;
-  symbol: string;
-  name: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  isFavorite?: boolean;
-}
-
-interface WatchlistProps {
-  initialItems?: WatchlistItem[];
-  onSelectStock?: (symbol: string) => void;
-}
+import { WatchlistItem, WatchlistProps, MarketType } from "@/types/watchlist";
 
 export function Watchlist({
   initialItems = [],
   onSelectStock,
+  marketType,
 }: WatchlistProps) {
   const [items, setItems] = useState<WatchlistItem[]>(initialItems);
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,7 +46,9 @@ export function Watchlist({
   useEffect(() => {
     const fetchSymbols = async () => {
       try {
-        const res = await fetch("http://localhost:3003/api/stock/symbols");
+        const res = await fetch(
+          `http://localhost:3003/api/${marketType}/symbols`
+        );
         const data = await res.json();
         // Map sang WatchlistItem (mock price, change, changePercent nếu chưa có)
         const mapped = data.map((item: any) => ({
@@ -69,6 +58,7 @@ export function Watchlist({
           price: Math.random() * 1000, // TODO: fetch giá thực tế nếu có
           change: Math.random() * 10 - 5,
           changePercent: Math.random() * 2 - 1,
+          type: marketType,
         }));
         setSearchResults(mapped);
       } catch (err) {
@@ -76,7 +66,7 @@ export function Watchlist({
       }
     };
     fetchSymbols();
-  }, []);
+  }, [marketType]);
 
   // Filter items based on search query
   const filteredItems = items.filter(
@@ -150,7 +140,10 @@ export function Watchlist({
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ symbol: stock.symbol }),
+          body: JSON.stringify({
+            symbol: stock.symbol,
+            type: marketType,
+          }),
         }
       );
 
@@ -187,7 +180,10 @@ export function Watchlist({
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ symbol: stockToRemove.symbol }),
+          body: JSON.stringify({
+            symbol: stockToRemove.symbol,
+            type: marketType,
+          }),
         }
       );
 

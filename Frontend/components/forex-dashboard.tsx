@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Watchlist } from "@/components/watchlist";
+import { WatchlistItem } from "@/types/watchlist";
 
 // Mock forex data
 const forexData = {
@@ -183,7 +184,7 @@ const historicalData = [
   },
 ];
 
-const initialForexWatchlist = [
+const initialForexWatchlist: WatchlistItem[] = [
   {
     id: "eurusd",
     symbol: "EUR/USD",
@@ -191,6 +192,7 @@ const initialForexWatchlist = [
     price: 1.0842,
     change: -0.0023,
     changePercent: -0.21,
+    type: "forex",
   },
   {
     id: "gbpusd",
@@ -199,6 +201,7 @@ const initialForexWatchlist = [
     price: 1.2687,
     change: 0.0034,
     changePercent: 0.27,
+    type: "forex",
   },
   {
     id: "usdjpy",
@@ -207,6 +210,7 @@ const initialForexWatchlist = [
     price: 156.78,
     change: 0.45,
     changePercent: 0.29,
+    type: "forex",
   },
   {
     id: "usdchf",
@@ -215,6 +219,7 @@ const initialForexWatchlist = [
     price: 0.9042,
     change: -0.0018,
     changePercent: -0.2,
+    type: "forex",
   },
   {
     id: "audusd",
@@ -223,6 +228,7 @@ const initialForexWatchlist = [
     price: 0.6587,
     change: 0.0021,
     changePercent: 0.32,
+    type: "forex",
   },
 ];
 
@@ -279,7 +285,7 @@ export function ForexDashboard() {
           )}
         </div>
         <div className="space-y-6">
-          <Watchlist initialItems={initialForexWatchlist} />
+          <Watchlist initialItems={initialForexWatchlist} marketType="forex" />
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Forex Information</CardTitle>

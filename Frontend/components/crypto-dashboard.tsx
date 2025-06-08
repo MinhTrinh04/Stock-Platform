@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Watchlist } from "@/components/watchlist";
+import { WatchlistItem } from "@/types/watchlist";
 
 // Mock crypto data
 const cryptoData = {
@@ -224,7 +225,7 @@ const popularCrypto = [
   },
 ];
 
-const initialCryptoWatchlist = [
+const initialCryptoWatchlist: WatchlistItem[] = [
   {
     id: "btcusd",
     symbol: "BTC/USD",
@@ -232,6 +233,7 @@ const initialCryptoWatchlist = [
     price: 67842.15,
     change: 1245.32,
     changePercent: 1.87,
+    type: "crypto",
   },
   {
     id: "ethusd",
@@ -240,6 +242,7 @@ const initialCryptoWatchlist = [
     price: 3456.78,
     change: 89.45,
     changePercent: 2.65,
+    type: "crypto",
   },
   {
     id: "ltcusd",
@@ -248,6 +251,7 @@ const initialCryptoWatchlist = [
     price: 98.76,
     change: 2.34,
     changePercent: 2.43,
+    type: "crypto",
   },
   {
     id: "bnbusd",
@@ -256,6 +260,7 @@ const initialCryptoWatchlist = [
     price: 567.89,
     change: 12.56,
     changePercent: 2.27,
+    type: "crypto",
   },
   {
     id: "xrpusd",
@@ -264,6 +269,7 @@ const initialCryptoWatchlist = [
     price: 0.56,
     change: 0.01,
     changePercent: 1.82,
+    type: "crypto",
   },
 ];
 
@@ -320,7 +326,10 @@ export function CryptoDashboard() {
           )}
         </div>
         <div className="space-y-6">
-          <Watchlist initialItems={initialCryptoWatchlist} />
+          <Watchlist
+            initialItems={initialCryptoWatchlist}
+            marketType="crypto"
+          />
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Crypto Information</CardTitle>

@@ -13,16 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-interface WatchlistItem {
-  id: string;
-  symbol: string;
-  name: string;
-  price: number;
-  change: number;
-  changePercent: number;
-  isFavorite?: boolean;
-}
+import { WatchlistItem } from "@/types/watchlist";
 
 export function StockDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -338,6 +329,7 @@ export function StockDashboard() {
               change: Math.random() * 10 - 5,
               changePercent: Math.random() * 2 - 1,
               isFavorite: true,
+              type: "stock" as const,
             };
           })
         );
@@ -466,6 +458,7 @@ export function StockDashboard() {
           <Watchlist
             initialItems={watchlistItems}
             onSelectStock={handleSelectStock}
+            marketType="stock"
           />
 
           {isLoadingCompany ? (
