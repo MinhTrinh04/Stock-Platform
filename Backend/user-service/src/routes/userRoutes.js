@@ -91,15 +91,24 @@ router.put('/watchlist', async (req, res) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { symbol } = req.body;
+        const { symbol, type } = req.body;
+
+        if (!symbol || !type) {
+            return res.status(400).json({ message: 'Symbol and type are required' });
+        }
 
         const user = await User.findById(decoded.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if (!user.watchlist.includes(symbol)) {
-            user.watchlist.push(symbol);
+        // Check if the item already exists in watchlist
+        const exists = user.watchlist.some(item =>
+            item.symbol === symbol && item.type === type
+        );
+
+        if (!exists) {
+            user.watchlist.push({ symbol, type });
             await user.save();
         }
 
@@ -118,16 +127,23 @@ router.delete('/watchlist', async (req, res) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { symbol } = req.body;
+        const { symbol, type } = req.body;
+
+        if (!symbol || !type) {
+            return res.status(400).json({ message: 'Symbol and type are required' });
+        }
 
         const user = await User.findById(decoded.userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user.watchlist = user.watchlist.filter(s => s !== symbol);
-        await user.save();
+        // Remove the item from watchlist
+        user.watchlist = user.watchlist.filter(item =>
+            !(item.symbol === symbol && item.type === type)
+        );
 
+        await user.save();
         res.json(user.watchlist);
     } catch (error) {
         res.status(500).json({ message: 'Error removing from watchlist', error: error.message });

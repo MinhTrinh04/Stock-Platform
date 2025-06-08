@@ -316,15 +316,20 @@ export function StockDashboard() {
 
         const userData = await response.json();
 
+        // Filter watchlist items by type 'stock'
+        const stockWatchlist = userData.watchlist.filter(
+          (item: any) => item.type === "stock"
+        );
+
         // Fetch stock data for each symbol in watchlist
         const watchlistData = await Promise.all(
-          userData.watchlist.map(async (symbol: string) => {
+          stockWatchlist.map(async (item: any) => {
             // In a real app, you would fetch this from a stock API
             // For now, we'll use mock data
             return {
-              id: symbol.toLowerCase(),
-              symbol: symbol,
-              name: `${symbol} Company`, // This would come from the API
+              id: item.name.toLowerCase(),
+              symbol: item.name,
+              name: `${item.name} Company`, // This would come from the API
               price: Math.random() * 1000,
               change: Math.random() * 10 - 5,
               changePercent: Math.random() * 2 - 1,

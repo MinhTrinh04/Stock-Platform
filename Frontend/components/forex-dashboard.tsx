@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { InteractiveChart } from "@/components/interactive-chart";
 import { TechnicalIndicators } from "@/components/technical-indicators";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -237,6 +237,56 @@ export function ForexDashboard() {
   const [showEMA, setShowEMA] = useState(true);
   const [showRSI, setShowRSI] = useState(true);
   const [showBollingerBands, setShowBollingerBands] = useState(true);
+  const [items, setItems] = useState<WatchlistItem[]>([]);
+
+  useEffect(() => {
+    const fetchWatchlist = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:3001/api/users/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch watchlist");
+        }
+
+        const userData = await response.json();
+
+        // Filter watchlist items by type 'forex'
+        const forexWatchlist = userData.watchlist.filter(
+          (item: any) => item.type === "forex"
+        );
+
+        // Map to WatchlistItem format
+        const watchlistData = forexWatchlist.map((item: any) => ({
+          id: item.name.toLowerCase(),
+          symbol: item.name,
+          name: `${item.name} / US Dollar`,
+          price: Math.random() * 1000,
+          change: Math.random() * 10 - 5,
+          changePercent: Math.random() * 2 - 1,
+          type: "forex" as const,
+        }));
+
+        setItems(watchlistData);
+      } catch (error) {
+        console.error("Error fetching watchlist:", error);
+      }
+    };
+
+    fetchWatchlist();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -285,7 +335,7 @@ export function ForexDashboard() {
           )}
         </div>
         <div className="space-y-6">
-          <Watchlist initialItems={initialForexWatchlist} marketType="forex" />
+          <Watchlist initialItems={items} marketType="forex" />
           <Card>
             <CardHeader className="pb-2">
               <CardTitle>Forex Information</CardTitle>

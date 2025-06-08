@@ -20,8 +20,17 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     watchlist: [{
-        type: String,
-        trim: true
+        symbol: {
+            type: String,
+            required: true,
+            trim: true
+        },
+        type: {
+            type: String,
+            required: true,
+            enum: ['stock', 'crypto', 'forex'],
+            trim: true
+        }
     }],
     createdAt: {
         type: Date,
