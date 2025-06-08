@@ -327,9 +327,9 @@ export function StockDashboard() {
             // In a real app, you would fetch this from a stock API
             // For now, we'll use mock data
             return {
-              id: item.name.toLowerCase(),
-              symbol: item.name,
-              name: `${item.name} Company`, // This would come from the API
+              id: item.symbol.toLowerCase(),
+              symbol: item.symbol,
+              name: `${item.symbol} Company`, // This would come from the API
               price: Math.random() * 1000,
               change: Math.random() * 10 - 5,
               changePercent: Math.random() * 2 - 1,

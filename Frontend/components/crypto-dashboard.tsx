@@ -311,9 +311,9 @@ export function CryptoDashboard() {
 
         // Map to WatchlistItem format
         const watchlistData = cryptoWatchlist.map((item: any) => ({
-          id: item.name.toLowerCase(),
-          symbol: item.name,
-          name: `${item.name} / US Dollar`,
+          id: item.symbol.toLowerCase(),
+          symbol: item.symbol,
+          name: `${item.symbol} / US Dollar`,
           price: Math.random() * 1000,
           change: Math.random() * 10 - 5,
           changePercent: Math.random() * 2 - 1,
