@@ -9,277 +9,37 @@ import { Button } from "@/components/ui/button";
 import { Watchlist } from "@/components/watchlist";
 import { WatchlistItem } from "@/types/watchlist";
 
-// Mock crypto data
-const cryptoData = {
-  symbol: "BTC/USD",
-  name: "Bitcoin / US Dollar",
-  price: 67842.15,
-  change: 1245.32,
-  changePercent: 1.87,
-  marketCap: "1.32T",
-  volume24h: "42.8B",
-  circulatingSupply: "19.4M",
-  high: 68921.45,
-  low: 66587.21,
-  open: 66596.83,
-  previousClose: 66596.83,
-  allTimeHigh: 73750.0,
-};
-
-// Mock historical data for chart with Bollinger Bands
-const historicalData = [
-  {
-    date: "Jan",
-    price: 42521.41,
-    open: 41200.0,
-    high: 43100.0,
-    low: 40800.0,
-    close: 42521.41,
-    ema: 41510,
-    rsi: 62,
-    bollingerUpper: 45200,
-    bollingerMiddle: 42300,
-    bollingerLower: 39400,
-  },
-  {
-    date: "Feb",
-    price: 48112.12,
-    open: 42600.0,
-    high: 48500.0,
-    low: 42300.0,
-    close: 48112.12,
-    ema: 43880,
-    rsi: 71,
-    bollingerUpper: 51500,
-    bollingerMiddle: 47800,
-    bollingerLower: 44100,
-  },
-  {
-    date: "Mar",
-    price: 45765.85,
-    open: 48000.0,
-    high: 48200.0,
-    low: 45200.0,
-    close: 45765.85,
-    ema: 44840,
-    rsi: 58,
-    bollingerUpper: 49200,
-    bollingerMiddle: 45600,
-    bollingerLower: 42000,
-  },
-  {
-    date: "Apr",
-    price: 53698.57,
-    open: 45800.0,
-    high: 54000.0,
-    low: 45500.0,
-    close: 53698.57,
-    ema: 47790,
-    rsi: 74,
-    bollingerUpper: 57800,
-    bollingerMiddle: 53500,
-    bollingerLower: 49200,
-  },
-  {
-    date: "May",
-    price: 49785.95,
-    open: 53700.0,
-    high: 54100.0,
-    low: 49200.0,
-    close: 49785.95,
-    ema: 48770,
-    rsi: 62,
-    bollingerUpper: 53900,
-    bollingerMiddle: 49600,
-    bollingerLower: 45300,
-  },
-  {
-    date: "Jun",
-    price: 58397.97,
-    open: 49800.0,
-    high: 58500.0,
-    low: 49500.0,
-    close: 58397.97,
-    ema: 51800,
-    rsi: 78,
-    bollingerUpper: 63200,
-    bollingerMiddle: 58100,
-    bollingerLower: 53000,
-  },
-  {
-    date: "Jul",
-    price: 61445.45,
-    open: 58400.0,
-    high: 61800.0,
-    low: 58000.0,
-    close: 61445.45,
-    ema: 54220,
-    rsi: 81,
-    bollingerUpper: 66500,
-    bollingerMiddle: 60900,
-    bollingerLower: 55300,
-  },
-  {
-    date: "Aug",
-    price: 59234.12,
-    open: 61500.0,
-    high: 62000.0,
-    low: 59000.0,
-    close: 59234.12,
-    ema: 55660,
-    rsi: 68,
-    bollingerUpper: 64800,
-    bollingerMiddle: 59700,
-    bollingerLower: 54600,
-  },
-  {
-    date: "Sep",
-    price: 54876.54,
-    open: 59300.0,
-    high: 59500.0,
-    low: 54500.0,
-    close: 54876.54,
-    ema: 55440,
-    rsi: 45,
-    bollingerUpper: 60100,
-    bollingerMiddle: 54900,
-    bollingerLower: 49700,
-  },
-  {
-    date: "Oct",
-    price: 60123.78,
-    open: 54900.0,
-    high: 60500.0,
-    low: 54600.0,
-    close: 60123.78,
-    ema: 57880,
-    rsi: 72,
-    bollingerUpper: 65400,
-    bollingerMiddle: 59900,
-    bollingerLower: 54400,
-  },
-  {
-    date: "Nov",
-    price: 65432.9,
-    open: 60200.0,
-    high: 65800.0,
-    low: 60000.0,
-    close: 65432.9,
-    ema: 60550,
-    rsi: 79,
-    bollingerUpper: 70700,
-    bollingerMiddle: 64800,
-    bollingerLower: 58900,
-  },
-  {
-    date: "Dec",
-    price: 67842.15,
-    open: 65500.0,
-    high: 68200.0,
-    low: 65000.0,
-    close: 67842.15,
-    ema: 63220,
-    rsi: 82,
-    bollingerUpper: 73900,
-    bollingerMiddle: 67500,
-    bollingerLower: 61100,
-  },
-];
-
-// Popular cryptocurrencies for watchlist
-const popularCrypto = [
-  {
-    symbol: "BTC/USD",
-    name: "Bitcoin / US Dollar",
-    price: 67842.15,
-    change: 1245.32,
-    changePercent: 1.87,
-  },
-  {
-    symbol: "ETH/USD",
-    name: "Ethereum / US Dollar",
-    price: 3456.78,
-    change: 89.45,
-    changePercent: 2.65,
-  },
-  {
-    symbol: "LTC/USD",
-    name: "Litecoin / US Dollar",
-    price: 98.76,
-    change: 2.34,
-    changePercent: 2.43,
-  },
-  {
-    symbol: "BNB/USD",
-    name: "Binance Coin / US Dollar",
-    price: 567.89,
-    change: 12.56,
-    changePercent: 2.27,
-  },
-  {
-    symbol: "XRP/USD",
-    name: "Ripple / US Dollar",
-    price: 0.56,
-    change: 0.01,
-    changePercent: 1.82,
-  },
-];
-
-const initialCryptoWatchlist: WatchlistItem[] = [
-  {
-    id: "btcusd",
-    symbol: "BTC/USD",
-    name: "Bitcoin / US Dollar",
-    price: 67842.15,
-    change: 1245.32,
-    changePercent: 1.87,
-    type: "crypto",
-  },
-  {
-    id: "ethusd",
-    symbol: "ETH/USD",
-    name: "Ethereum / US Dollar",
-    price: 3456.78,
-    change: 89.45,
-    changePercent: 2.65,
-    type: "crypto",
-  },
-  {
-    id: "ltcusd",
-    symbol: "LTC/USD",
-    name: "Litecoin / US Dollar",
-    price: 98.76,
-    change: 2.34,
-    changePercent: 2.43,
-    type: "crypto",
-  },
-  {
-    id: "bnbusd",
-    symbol: "BNB/USD",
-    name: "Binance Coin / US Dollar",
-    price: 567.89,
-    change: 12.56,
-    changePercent: 2.27,
-    type: "crypto",
-  },
-  {
-    id: "xrpusd",
-    symbol: "XRP/USD",
-    name: "Ripple / US Dollar",
-    price: 0.56,
-    change: 0.01,
-    changePercent: 1.82,
-    type: "crypto",
-  },
-];
-
 export function CryptoDashboard() {
-  const [timeframe, setTimeframe] = useState("1Y");
+  const [timeframe, setTimeframe] = useState("1D");
   const [showEMA, setShowEMA] = useState(true);
   const [showRSI, setShowRSI] = useState(true);
   const [showBollingerBands, setShowBollingerBands] = useState(true);
+  const [selectedCrypto, setSelectedCrypto] = useState<string>("");
   const [items, setItems] = useState<WatchlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [ohlcvData, setOhlcvData] = useState<any[]>([]);
+  const [isLoadingChart, setIsLoadingChart] = useState(false);
+  const [cryptoInfo, setCryptoInfo] = useState<any>(null);
+  const [isLoadingCrypto, setIsLoadingCrypto] = useState(false);
+  const [technicalData, setTechnicalData] = useState<{
+    rsi: (number | undefined)[];
+    ema: (number | undefined)[];
+    bollingerBands: {
+      upper: (number | undefined)[];
+      middle: (number | undefined)[];
+      lower: (number | undefined)[];
+    };
+  }>({
+    rsi: [],
+    ema: [],
+    bollingerBands: {
+      upper: [],
+      middle: [],
+      lower: [],
+    },
+  });
 
+  // Fetch watchlist
   useEffect(() => {
     const fetchWatchlist = async () => {
       try {
@@ -323,11 +83,246 @@ export function CryptoDashboard() {
         setItems(watchlistData);
       } catch (error) {
         console.error("Error fetching watchlist:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchWatchlist();
   }, []);
+
+  // Helper function to pad arrays
+  const padArray = (arr: any[], targetLength: number) => {
+    const padLength = targetLength - arr.length;
+    if (padLength <= 0) return arr;
+    return Array(padLength).fill(null).concat(arr);
+  };
+
+  // Function to fetch technical indicators
+  const fetchTechnicalIndicators = async (
+    prices: number[],
+    interval: string
+  ) => {
+    if (!prices || prices.length === 0) {
+      console.log("No prices data available for technical indicators");
+      return;
+    }
+
+    try {
+      let period = 2;
+      const dataLength = prices.length;
+
+      switch (interval) {
+        case "1H":
+          period = Math.min(48, Math.floor(dataLength * 0.2));
+          break;
+        case "1D":
+          period = Math.min(30, Math.floor(dataLength * 0.1));
+          break;
+        case "1W":
+          period = Math.min(90, Math.floor(dataLength * 0.2));
+          break;
+        case "1M":
+          period = Math.min(12, Math.floor(dataLength * 0.2));
+          break;
+      }
+
+      // Fetch RSI
+      const rsiResponse = await fetch("http://localhost:3002/api/rsi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          prices: prices,
+          period: period,
+        }),
+      });
+
+      if (!rsiResponse.ok) {
+        throw new Error(`RSI API error: ${rsiResponse.statusText}`);
+      }
+      const rsiData = await rsiResponse.json();
+
+      // Fetch EMA
+      const emaResponse = await fetch("http://localhost:3002/api/ema", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          prices: prices,
+          period: period,
+        }),
+      });
+
+      if (!emaResponse.ok) {
+        throw new Error(`EMA API error: ${emaResponse.statusText}`);
+      }
+      const emaData = await emaResponse.json();
+
+      // Fetch Bollinger Bands
+      const bbResponse = await fetch(
+        "http://localhost:3002/api/bollinger-bands",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            prices: prices,
+            period: period,
+            stdDev: 2,
+          }),
+        }
+      );
+
+      if (!bbResponse.ok) {
+        throw new Error(`Bollinger Bands API error: ${bbResponse.statusText}`);
+      }
+      const bbData = await bbResponse.json();
+
+      setTechnicalData({
+        rsi: padArray(rsiData, prices.length),
+        ema: padArray(emaData, prices.length),
+        bollingerBands: {
+          upper: padArray(
+            bbData.map((item: any) => item.upper),
+            prices.length
+          ),
+          middle: padArray(
+            bbData.map((item: any) => item.middle),
+            prices.length
+          ),
+          lower: padArray(
+            bbData.map((item: any) => item.lower),
+            prices.length
+          ),
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching technical indicators:", error);
+      setTechnicalData({
+        rsi: [],
+        ema: [],
+        bollingerBands: {
+          upper: [],
+          middle: [],
+          lower: [],
+        },
+      });
+    }
+  };
+
+  // Fetch OHLCV data
+  const fetchOhlcvData = async (symbol: string, interval: string) => {
+    try {
+      setIsLoadingChart(true);
+      setOhlcvData([]);
+      setTechnicalData({
+        rsi: [],
+        ema: [],
+        bollingerBands: {
+          upper: [],
+          middle: [],
+          lower: [],
+        },
+      });
+
+      const endDate = new Date().toISOString().split("T")[0];
+      let startDate = new Date();
+
+      switch (interval) {
+        case "1H":
+          startDate.setHours(startDate.getHours() - 48);
+          break;
+        case "1D":
+          startDate.setDate(startDate.getDate() - 30);
+          break;
+        case "1W":
+          startDate.setDate(startDate.getDate() - 90);
+          break;
+        case "1M":
+          startDate.setMonth(startDate.getMonth() - 12);
+          break;
+      }
+
+      const formattedStartDate = startDate.toISOString().split("T")[0];
+
+      const response = await fetch(
+        `http://localhost:3003/api/crypto/ohlcv/${symbol}?start_date=${formattedStartDate}&end_date=${endDate}&interval=${interval}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`OHLCV API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        throw new Error("No OHLCV data received");
+      }
+      setOhlcvData(data);
+
+      const closingPrices = data
+        .map((item: any) => Number(item.close))
+        .filter((price: number) => !isNaN(price));
+
+      if (closingPrices && closingPrices.length > 0) {
+        await fetchTechnicalIndicators(closingPrices, interval);
+      }
+    } catch (error) {
+      console.error("Error fetching OHLCV data:", error);
+      setOhlcvData([]);
+      setTechnicalData({
+        rsi: [],
+        ema: [],
+        bollingerBands: {
+          upper: [],
+          middle: [],
+          lower: [],
+        },
+      });
+    } finally {
+      setIsLoadingChart(false);
+    }
+  };
+
+  // Fetch data when selected crypto or timeframe changes
+  useEffect(() => {
+    if (selectedCrypto) {
+      fetchOhlcvData(selectedCrypto, timeframe);
+    } else {
+      setOhlcvData([]);
+    }
+  }, [selectedCrypto, timeframe]);
+
+  // Fetch crypto info when selectedCrypto changes
+  useEffect(() => {
+    if (!selectedCrypto) {
+      setCryptoInfo(null);
+      return;
+    }
+    setIsLoadingCrypto(true);
+    fetch(`http://localhost:3003/api/crypto/info/${selectedCrypto}`)
+      .then((res) => res.json())
+      .then((data) => setCryptoInfo(data))
+      .catch(() => setCryptoInfo(null))
+      .finally(() => setIsLoadingCrypto(false));
+  }, [selectedCrypto]);
+
+  const handleSelectCrypto = (symbol: string) => {
+    setSelectedCrypto(symbol);
+    setTimeframe("1D");
+  };
 
   return (
     <div className="space-y-6">
@@ -340,27 +335,58 @@ export function CryptoDashboard() {
           <Card>
             <CardContent className="p-4">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{cryptoData.symbol}</h2>
+                <h2 className="text-2xl font-bold">
+                  {selectedCrypto || "Select a cryptocurrency"}
+                </h2>
                 <Tabs
-                  defaultValue="1Y"
+                  defaultValue="1D"
                   className="w-[300px]"
                   onValueChange={setTimeframe}
                 >
-                  <TabsList className="grid w-full grid-cols-5">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="1H">1H</TabsTrigger>
                     <TabsTrigger value="1D">1D</TabsTrigger>
                     <TabsTrigger value="1W">1W</TabsTrigger>
                     <TabsTrigger value="1M">1M</TabsTrigger>
-                    <TabsTrigger value="6M">6M</TabsTrigger>
-                    <TabsTrigger value="1Y">1Y</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
-              <InteractiveChart
-                data={historicalData}
-                timeframe={timeframe}
-                showEMA={showEMA}
-                showBollingerBands={showBollingerBands}
-              />
+              {selectedCrypto === "" ? (
+                <div className="flex h-[300px] items-center justify-center">
+                  <div className="text-muted-foreground">
+                    Select a cryptocurrency first
+                  </div>
+                </div>
+              ) : isLoadingChart ? (
+                <div className="flex h-[300px] items-center justify-center">
+                  <div className="text-muted-foreground">
+                    Loading chart data...
+                  </div>
+                </div>
+              ) : ohlcvData.length > 0 ? (
+                <InteractiveChart
+                  data={ohlcvData.map((item, index) => ({
+                    date: item.timestamp,
+                    price: item.close,
+                    open: item.open,
+                    high: item.high,
+                    low: item.low,
+                    close: item.close,
+                    volume: item.volume,
+                    ema: technicalData.ema[index],
+                    bollingerUpper: technicalData.bollingerBands.upper[index],
+                    bollingerMiddle: technicalData.bollingerBands.middle[index],
+                    bollingerLower: technicalData.bollingerBands.lower[index],
+                  }))}
+                  timeframe={timeframe}
+                  showEMA={showEMA}
+                  showBollingerBands={showBollingerBands}
+                />
+              ) : (
+                <div className="flex h-[300px] items-center justify-center">
+                  <div className="text-muted-foreground">No data available</div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -370,49 +396,62 @@ export function CryptoDashboard() {
                 <h3 className="mb-2 font-semibold">
                   RSI (Relative Strength Index)
                 </h3>
-                <TechnicalIndicators data={historicalData} type="rsi" />
+                <TechnicalIndicators
+                  data={ohlcvData.map((item, index) => ({
+                    date: item.timestamp,
+                    rsi: technicalData.rsi[index],
+                    ema: technicalData.ema[index],
+                  }))}
+                  type="rsi"
+                />
               </CardContent>
             </Card>
           )}
         </div>
         <div className="space-y-6">
-          <Watchlist initialItems={items} marketType="crypto" />
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Crypto Information</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Symbol</span>
-                  <span className="font-medium">{cryptoData.symbol}</span>
+          <Watchlist
+            initialItems={items}
+            onSelectStock={handleSelectCrypto}
+            marketType="crypto"
+          />
+
+          {isLoadingCrypto ? (
+            <div className="p-4">Loading cryptocurrency information...</div>
+          ) : cryptoInfo ? (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Crypto Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Symbol</span>
+                    <span className="font-medium">{cryptoInfo.symbol}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Name</span>
+                    <span className="font-medium">{cryptoInfo.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Market Cap</span>
+                    <span className="font-medium">${cryptoInfo.marketCap}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      Circulating Supply
+                    </span>
+                    <span className="font-medium">
+                      {cryptoInfo.circulatingSupply}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Name</span>
-                  <span className="font-medium">{cryptoData.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Price</span>
-                  <span className="font-medium">
-                    ${cryptoData.price.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Change</span>
-                  <span
-                    className={`font-medium ${
-                      cryptoData.change >= 0 ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {cryptoData.change >= 0 ? "+" : ""}
-                    {cryptoData.change.toFixed(2)} (
-                    {cryptoData.change >= 0 ? "+" : ""}
-                    {cryptoData.changePercent.toFixed(2)}%)
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="p-4 text-muted-foreground">
+              Select a cryptocurrency to view information
+            </div>
+          )}
 
           <Card>
             <CardContent className="p-4">
