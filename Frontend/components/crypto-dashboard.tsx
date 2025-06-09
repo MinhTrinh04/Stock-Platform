@@ -91,6 +91,13 @@ export function CryptoDashboard() {
     fetchWatchlist();
   }, []);
 
+  // Khi items thay đổi, nếu chưa có selectedCrypto thì chọn mã đầu tiên
+  useEffect(() => {
+    if (!selectedCrypto && items.length > 0) {
+      setSelectedCrypto(items[0].symbol);
+    }
+  }, [items, selectedCrypto]);
+
   // Helper function to pad arrays
   const padArray = (arr: any[], targetLength: number) => {
     const padLength = targetLength - arr.length;

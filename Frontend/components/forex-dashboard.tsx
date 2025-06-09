@@ -91,6 +91,13 @@ export function ForexDashboard() {
     fetchWatchlist();
   }, []);
 
+  // Khi items thay đổi, nếu chưa có selectedPair thì chọn mã đầu tiên
+  useEffect(() => {
+    if (!selectedPair && items.length > 0) {
+      setSelectedPair(items[0].symbol);
+    }
+  }, [items, selectedPair]);
+
   // Helper function to pad arrays
   const padArray = (arr: any[], targetLength: number) => {
     const padLength = targetLength - arr.length;
@@ -432,18 +439,6 @@ export function ForexDashboard() {
                     <span className="font-medium">
                       {forexInfo.baseCurrency}
                     </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Quote Currency
-                    </span>
-                    <span className="font-medium">
-                      {forexInfo.quoteCurrency}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Exchange Rate</span>
-                    <span className="font-medium">{forexInfo.rate}</span>
                   </div>
                 </div>
               </CardContent>
