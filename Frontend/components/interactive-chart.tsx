@@ -217,9 +217,7 @@ export function InteractiveChart({
   return (
     <div className="space-y-4">
       <div>
-        <div className="text-3xl font-bold">
-          {formatYAxis(currentPrice * 1000)}
-        </div>
+        <div className="text-3xl font-bold">{formatYAxis(currentPrice)}</div>
         <div
           className={`flex items-center ${
             isPositive ? "text-green-600" : "text-red-600"

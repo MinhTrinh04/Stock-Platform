@@ -343,8 +343,7 @@ export function ForexDashboard() {
                   className="w-[300px]"
                   onValueChange={setTimeframe}
                 >
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="1H">1H</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="1D">1D</TabsTrigger>
                     <TabsTrigger value="1W">1W</TabsTrigger>
                     <TabsTrigger value="1M">1M</TabsTrigger>
@@ -392,7 +391,7 @@ export function ForexDashboard() {
 
           {showRSI && (
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 pb-80">
                 <h3 className="mb-2 font-semibold">
                   RSI (Relative Strength Index)
                 </h3>

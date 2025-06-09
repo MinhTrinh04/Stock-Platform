@@ -113,9 +113,6 @@ export function CryptoDashboard() {
       const dataLength = prices.length;
 
       switch (interval) {
-        case "1H":
-          period = Math.min(48, Math.floor(dataLength * 0.2));
-          break;
         case "1D":
           period = Math.min(30, Math.floor(dataLength * 0.1));
           break;
@@ -236,11 +233,8 @@ export function CryptoDashboard() {
       let startDate = new Date();
 
       switch (interval) {
-        case "1H":
-          startDate.setHours(startDate.getHours() - 48);
-          break;
         case "1D":
-          startDate.setDate(startDate.getDate() - 30);
+          startDate.setDate(startDate.getDate() - 60);
           break;
         case "1W":
           startDate.setDate(startDate.getDate() - 90);
@@ -343,8 +337,7 @@ export function CryptoDashboard() {
                   className="w-[300px]"
                   onValueChange={setTimeframe}
                 >
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="1H">1H</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="1D">1D</TabsTrigger>
                     <TabsTrigger value="1W">1W</TabsTrigger>
                     <TabsTrigger value="1M">1M</TabsTrigger>
@@ -392,7 +385,7 @@ export function CryptoDashboard() {
 
           {showRSI && (
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 pb-80">
                 <h3 className="mb-2 font-semibold">
                   RSI (Relative Strength Index)
                 </h3>
@@ -431,18 +424,6 @@ export function CryptoDashboard() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Name</span>
                     <span className="font-medium">{cryptoInfo.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Market Cap</span>
-                    <span className="font-medium">${cryptoInfo.marketCap}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Circulating Supply
-                    </span>
-                    <span className="font-medium">
-                      {cryptoInfo.circulatingSupply}
-                    </span>
                   </div>
                 </div>
               </CardContent>

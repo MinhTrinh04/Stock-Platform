@@ -17,7 +17,7 @@ import { WatchlistItem } from "@/types/watchlist";
 
 export function StockDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [timeframe, setTimeframe] = useState("1D");
+  const [timeframe, setTimeframe] = useState("1W");
   const [showEMA, setShowEMA] = useState(true);
   const [showRSI, setShowRSI] = useState(true);
   const [showBollingerBands, setShowBollingerBands] = useState(true);
@@ -217,7 +217,7 @@ export function StockDashboard() {
       // Calculate start date based on interval
       switch (interval) {
         case "1H":
-          startDate.setHours(startDate.getHours() - 48);
+          startDate.setDate(startDate.getDate() - 7);
           break;
         case "1D":
           startDate.setDate(startDate.getDate() - 30);
